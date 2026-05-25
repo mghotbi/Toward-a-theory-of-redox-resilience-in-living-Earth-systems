@@ -14,7 +14,7 @@ Run in R:
 ```r
 source("figure_redox_resilience.r")
 
-
+```
 # Toward a theory of redox resilience in living Earth systems
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -57,68 +57,11 @@ quarto render redox_resilience_figure.qmd
 ```
 
 ---
-
-# Processed datasets
-
-Processed datasets are reference-prefixed for transparent provenance tracking:
-
-- `lacroix_2022_*`
-- `delwiche_2021_fluxnet_ch4_*`
-- `kim_2012_rtsg_*`
-- `angle_2017_*`
-- `huo_2017_*`
-- `liebmann_freeze_thaw_*`
-- `sennett_2024_*`
-- `liu_2025_*`
-
-Each dataset is exported as both:
-
-- `.csv`
-- `.rds`
-
-for maximum reproducibility and reuse.
-
----
-
-# Figure outputs
-
-The main publication figure is exported to:
-
-```text
-figures/
-├── fig_redox_resilience_publish_nature_ready.pdf
-├── fig_redox_resilience_publish_nature_ready.tiff
-└── fig_redox_resilience_publish_nature_ready.png
-```
-
----
-
-# Reproducibility
-
-The repository includes:
-
-- fully reproducible R workflows
-- Quarto-based figure rendering
-- processed datasets
-- publication-ready exports
-- computational session information
-
-Environment metadata is recorded in:
-
-```text
-session_info.txt
-```
-
----
-
+ 
 # Citation
 
 Please cite the associated manuscript when using this repository:
 
-> Ghotbi, M. *Toward a theory of redox resilience in living Earth systems.*
+> Ghotbi, M. et al. *Toward a theory of redox resilience in living Earth systems.*
 
----
-
-# License
-
-MIT License.
+ 
