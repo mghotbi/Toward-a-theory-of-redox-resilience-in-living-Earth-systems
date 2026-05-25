@@ -21,19 +21,6 @@ source("figure_redox_resilience.r")
  
 ---
 
-# Repository contents
-
-| Folder / file | Description |
-|---|---|
-| `figure_redox_resilience.r` | Complete R workflow used to generate the publication figure. |
-| `redox_resilience_figure.qmd` | Quarto reproducibility workflow. |
-| `redox_resilience_figure.html` | Rendered reproducibility page. |
-| `figures/` | Publication-ready PDF, TIFF, and PNG outputs. |
-| `processed_data/` | Processed CSV and RDS datasets used in each panel. |
-| `session_info.txt` | R session information for computational reproducibility. |
-
----
-
  
 render the Quarto document:
 
