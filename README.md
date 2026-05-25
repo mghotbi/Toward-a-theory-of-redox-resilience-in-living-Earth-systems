@@ -2,6 +2,9 @@
 # Toward a theory of redox resilience in living Earth systems
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![R](https://img.shields.io/badge/R-reproducible%20workflow-276DC3.svg)](https://www.r-project.org/)
+[![Quarto](https://img.shields.io/badge/Quarto-reproducibility-39729E.svg)](https://quarto.org/)
+
 
 This repository contains the reproducible figure workflow, processed datasets, and publication-ready outputs associated with the manuscript:
 
@@ -15,18 +18,7 @@ Run in R:
 source("figure_redox_resilience.r")
 
 ```
-# Toward a theory of redox resilience in living Earth systems
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![R](https://img.shields.io/badge/R-reproducible%20workflow-276DC3.svg)](https://www.r-project.org/)
-[![Quarto](https://img.shields.io/badge/Quarto-reproducibility-39729E.svg)](https://quarto.org/)
-
-This repository contains the reproducible figure workflow, processed datasets, and publication-ready outputs associated with the manuscript:
-
-> **Toward a theory of redox resilience in living Earth systems**
-
-The repository integrates biological, hydrological, microbial, root, freeze–thaw, oxygen-memory, and abiotic rewetting datasets to support a mechanistic redox-resilience framework for living Earth systems.
-
+ 
 ---
 
 # Repository contents
@@ -42,15 +34,8 @@ The repository integrates biological, hydrological, microbial, root, freeze–th
 
 ---
 
-# Reproducing the figure
-
-Run in R:
-
-```r
-source("figure_redox_resilience.r")
-```
-
-Or render the Quarto document:
+ 
+render the Quarto document:
 
 ```bash
 quarto render redox_resilience_figure.qmd
