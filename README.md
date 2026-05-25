@@ -22,7 +22,7 @@ source("figure_redox_resilience.r")
 ---
 
  
-render the Quarto document:
+Render the Quarto document:
 
 ```bash
 quarto render redox_resilience_figure.qmd
