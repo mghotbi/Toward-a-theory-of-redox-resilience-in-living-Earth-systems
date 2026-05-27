@@ -1259,115 +1259,181 @@ fig_redox_resilience_publish <- (
 # PANEL K
 # Coupled O2 + Eh + pH trajectories
 # ------------------------------------------------------------
-
-o2_df <- tibble(
-  time = c(0, 3, 6, 9, 12, 18, 24),
-  oxygen = c(0.18, 0.55, 0.82, 0.74, 0.58, 0.40, 0.22)
+fig1_li <- readxl::read_xlsx(
+  file.path(data_dir, "Li 2025 Ncom.xlsx"),
+  sheet = "Figure 1",
+  col_names = FALSE,
+  col_types = "text"
 )
 
-eh_df <- tibble(
-  time = c(0, 3, 6, 9, 12, 18, 24),
-  eh = c(-120, -30, 85, 62, 24, -22, -80)
-)
-
-ph_df <- tibble(
-  time = c(0, 3, 6, 9, 12, 18, 24),
-  ph = c(6.2, 6.5, 6.8, 6.7, 6.5, 6.3, 6.1)
-)
-
-o2_scaled <- o2_df |>
-  mutate(
-    signal = scales::rescale(oxygen),
+li_k_real <- dplyr::bind_rows(
+  tibble::tibble(
+    time = readr::parse_number(fig1_li$...1),
+    value = readr::parse_number(fig1_li$...2),
     variable = "Oxygen"
-  )
-
-eh_scaled <- eh_df |>
-  mutate(
-    signal = scales::rescale(eh),
+  ),
+  tibble::tibble(
+    time = readr::parse_number(fig1_li$...6),
+    value = readr::parse_number(fig1_li$...7),
     variable = "Redox potential"
-  )
-
-ph_scaled <- ph_df |>
-  mutate(
-    signal = scales::rescale(ph),
+  ),
+  tibble::tibble(
+    time = readr::parse_number(fig1_li$...10),
+    value = readr::parse_number(fig1_li$...11),
     variable = "pH"
   )
+) |>
+  dplyr::filter(!is.na(time), !is.na(value)) |>
+  dplyr::group_by(variable) |>
+  dplyr::mutate(signal = scales::rescale(value)) |>
+  dplyr::ungroup()
 
-oscillation_long <- bind_rows(
-  o2_scaled,
-  eh_scaled,
-  ph_scaled
-)
+save_dataset(li_k_real, "li_2025", "panel_k_oxygen_eh_ph_real")
 
-save_dataset(
-  oscillation_long,
-  "li_2025",
-  "panel_k_oxygen_eh_ph"
-)
-
-p_li_k <- oscillation_long |>
-  
-  ggplot(
-    aes(
-      time,
-      signal,
-      colour = variable
-    )
+p_li_k <- li_k_real |>
+  ggplot2::ggplot(
+    ggplot2::aes(time, signal, colour = variable, fill = variable)
   ) +
-  
-  geom_smooth(
-    aes(fill = variable),
+  ggplot2::geom_line(linewidth = 0.85, alpha = 0.78) +
+  ggplot2::geom_smooth(
     method = "loess",
     formula = y ~ x,
-    se = TRUE,
+    se = FALSE,
     linewidth = 1.05,
-    alpha = 0.12
+    alpha = 0.9,
+    span = 0.18
   ) +
-  
-  geom_line(
-    linewidth = 1.05,
-    alpha = 0.95
-  ) +
-  
-  geom_point(
-    size = 1.25,
-    alpha = 0.72
-  ) +
-  
-  scale_colour_manual(
+  ggplot2::scale_colour_manual(
     values = c(
-      "Oxygen" = "#C62828",
-      "Redox potential" = "#1565C0",
-      "pH" = "#2E7D32"
+      "Oxygen" = "#c62828",
+      "pH" = "#2e7d32",
+      "Redox potential" = "#1565c0"
     )
   ) +
-  
-  scale_fill_manual(
+  ggplot2::scale_fill_manual(
     values = c(
-      "Oxygen" = "#C62828",
-      "Redox potential" = "#1565C0",
-      "pH" = "#2E7D32"
+      "Oxygen" = "#c62828",
+      "pH" = "#2e7d32",
+      "Redox potential" = "#1565c0"
     )
   ) +
-  
-  labs(
-    title =
-      "K  Coupled oxygen, redox and proton oscillations govern recovery trajectories",
-    
-    subtitle =
-      "Diel root oxygen loss synchronizes nonlinear oxygen, Eh and pH recovery dynamics",
-    
+  ggplot2::labs(
+    title = "K  Coupled oxygen, redox & proton oscillations govern recovery trajectories",
+    subtitle = "Li et al. trajectories scaled within variable for comparison",
     x = "Time (h)",
     y = "Scaled trajectory intensity"
   ) +
-  
-  coord_cartesian(expand = FALSE) +
-  
   theme_redox() +
-  
-  theme(
-    legend.position = "top"
-  )
+  ggplot2::theme(legend.position = "top")
+
+# o2_df <- tibble(
+#   time = c(0, 3, 6, 9, 12, 18, 24),
+#   oxygen = c(0.18, 0.55, 0.82, 0.74, 0.58, 0.40, 0.22)
+# )
+# 
+# eh_df <- tibble(
+#   time = c(0, 3, 6, 9, 12, 18, 24),
+#   eh = c(-120, -30, 85, 62, 24, -22, -80)
+# )
+# 
+# ph_df <- tibble(
+#   time = c(0, 3, 6, 9, 12, 18, 24),
+#   ph = c(6.2, 6.5, 6.8, 6.7, 6.5, 6.3, 6.1)
+# )
+# 
+# o2_scaled <- o2_df |>
+#   mutate(
+#     signal = scales::rescale(oxygen),
+#     variable = "Oxygen"
+#   )
+# 
+# eh_scaled <- eh_df |>
+#   mutate(
+#     signal = scales::rescale(eh),
+#     variable = "Redox potential"
+#   )
+# 
+# ph_scaled <- ph_df |>
+#   mutate(
+#     signal = scales::rescale(ph),
+#     variable = "pH"
+#   )
+# 
+# oscillation_long <- bind_rows(
+#   o2_scaled,
+#   eh_scaled,
+#   ph_scaled
+# )
+# 
+# save_dataset(
+#   oscillation_long,
+#   "li_2025",
+#   "panel_k_oxygen_eh_ph"
+# )
+# 
+# p_li_k <- oscillation_long |>
+#   
+#   ggplot(
+#     aes(
+#       time,
+#       signal,
+#       colour = variable
+#     )
+#   ) +
+#   
+#   geom_smooth(
+#     aes(fill = variable),
+#     method = "loess",
+#     formula = y ~ x,
+#     se = TRUE,
+#     linewidth = 1.05,
+#     alpha = 0.12
+#   ) +
+#   
+#   geom_line(
+#     linewidth = 1.05,
+#     alpha = 0.95
+#   ) +
+#   
+#   geom_point(
+#     size = 1.25,
+#     alpha = 0.72
+#   ) +
+#   
+#   scale_colour_manual(
+#     values = c(
+#       "Oxygen" = "#C62828",
+#       "Redox potential" = "#1565C0",
+#       "pH" = "#2E7D32"
+#     )
+#   ) +
+#   
+#   scale_fill_manual(
+#     values = c(
+#       "Oxygen" = "#C62828",
+#       "Redox potential" = "#1565C0",
+#       "pH" = "#2E7D32"
+#     )
+#   ) +
+#   
+#   labs(
+#     title =
+#       "K  Coupled oxygen, redox and proton oscillations govern recovery trajectories",
+#     
+#     subtitle =
+#       "Diel root oxygen loss synchronizes nonlinear oxygen, Eh and pH recovery dynamics",
+#     
+#     x = "Time (h)",
+#     y = "Scaled trajectory intensity"
+#   ) +
+#   
+#   coord_cartesian(expand = FALSE) +
+#   
+#   theme_redox() +
+#   
+#   theme(
+#     legend.position = "top"
+#   )
 
 # ------------------------------------------------------------
 # PANEL L
@@ -1578,6 +1644,20 @@ p_li_m <- fe_long |>
 # FINAL ASSEMBLY
 # ============================================================
 
+ 
+source_caption <- paste(
+  "Data sources:",
+  "A, Lacroix et al. 2022;",
+  "B, FLUXNET-CH4 / Delwiche et al. 2021;",
+  "C, Kim et al. 2012;",
+  "D, Angle et al. 2017;",
+  "E, Huo et al. 2017;",
+  "F, Liebmann et al. freeze-thaw redox dataset;",
+  "G, Sennett et al. 2024;",
+  "H-J, Liu et al. 2025, DOI 10.17632/bcb5rnyvhk.1;",
+  "K-M, Li et al. 2025, Nature Communications"
+)
+
 fig_redox_resilience <- (
   p_capacity | p_connectivity
 ) / (
@@ -1604,8 +1684,8 @@ fig_redox_resilience <- (
     subtitle = paste(
       "Datasets operationalize buffering capacity, hydrological connectivity,",
       "kinetic asymmetry, microbial routing, root amplification, freeze-thaw",
-      "redox hysteresis, oxygen-memory denitrification, abiotic rewetting chemistry",
-      "and mineral electron-buffering architecture"
+      "redox hysteresis, oxygen-memory denitrification, abiotic rewetting",
+      "chemistry and mineral electron-buffering architecture"
     ),
     caption = source_caption,
     theme = ggplot2::theme(
@@ -1618,162 +1698,42 @@ fig_redox_resilience <- (
       )
     )
   )
+
 # Save figure -------------------------------------------------------------
 
-# ============================================================
-# FINAL HIGH-RESOLUTION EXPORTS
-# ============================================================
+dir.create(figure_out_dir, recursive = TRUE, showWarnings = FALSE)
 
-# Nature-quality VECTOR PDF ----------------------------------
-
-ggsave(
-  filename = file.path(
-    figure_out_dir,
-    "fig_redox_resilience2.pdf"
-  ),
-  
-  plot = # ============================================================
-# FINAL HIGH-RESOLUTION EXPORTS
-# ============================================================
-
-# Nature-quality VECTOR PDF ----------------------------------
-
-ggsave(
-  filename = file.path(
-    figure_out_dir,
-    "fig_redox_resilience_ultra_highres.pdf"
-  ),
-
-  plot = fig_redox_resilience_publish,
-
-  width = 14,
-  height = 17,
-
-  units = "in",
-
-  device = cairo_pdf,
-
-  dpi = 1200,
-
-  bg = "white",
-
-  limitsize = FALSE
-)
-
-# 1200 dpi TIFF for journal submission -----------------------
-
-ggsave(
-  filename = file.path(
-    figure_out_dir,
-    "fig_redox_resilience_ultra_highres.tiff"
-  ),
-
-  plot = fig_redox_resilience_publish,
-
-  width = 14,
-  height = 17,
-
-  units = "in",
-
-  dpi = 1200,
-
-  compression = "lzw",
-
-  bg = "white",
-
-  limitsize = FALSE
-)
-
-# Ultra PNG for presentations --------------------------------
-
-ggsave(
-  filename = file.path(
-    figure_out_dir,
-    "fig_redox_resilience2.png"
-  ),
-
-  plot = fig_redox_resilience_publish,
-
-  width = 14,
-  height = 17,
-
-  units = "in",
-
-  dpi = 1200,
-
-  bg = "white",
-
-  limitsize = FALSE
-),
-  
-  width = 14,
-  height = 17,
-  
-  units = "in",
-  
-  device = cairo_pdf,
-  
-  dpi = 1200,
-  
-  bg = "white",
-  
-  limitsize = FALSE
-)
-
-# 1200 dpi TIFF for journal submission -----------------------
-
-ggsave(
-  filename = file.path(
+pdf_file <- file.path(
   figure_out_dir,
-  "fig_redox_resilience_ultra_highres.tiff"),
-  plot = fig_redox_resilience_publish,
-  width = 14,
-  height = 17,
-  units = "in",
-  dpi = 1200,
-  compression = "lzw",
-  bg = "white",
-  limitsize = FALSE)
-
-# Ultra PNG for presentations --------------------------------
-
-ggsave(
-  filename = file.path(
-    figure_out_dir,
-    "fig_redox_resilience_ultra_highres.png"),
-  plot = fig_redox_resilience,
-  width = 14,
-  height = 17,
-  units = "in",
-  dpi = 1200,
-  bg = "white",
-  limitsize = FALSE)
-
-
-ggplot2::ggsave(
-  filename = file.path(
-    figure_out_dir,
-    "fig_redox_resilience.pdf"
-  ),
-  plot = fig_redox_resilience,
-  width = 13.6,
-  height = 14.0,
-  units = "in",
-  device = grDevices::cairo_pdf,
-  bg = "white",
-  limitsize = FALSE
+  "fig_redox_resilience_nature_ready_plus_li2025.pdf"
 )
 
+tiff_file <- file.path(
+  figure_out_dir,
+  "fig_redox_resilience_nature_ready_plus_li2025_1200dpi.tiff"
+)
 
+png_file <- file.path(
+  figure_out_dir,
+  "fig_redox_resilience_nature_ready_plus_li2025_1200dpi.png"
+)
+
+grDevices::cairo_pdf(
+  filename = pdf_file,
+  width = 17,
+  height = 19,
+  onefile = TRUE
+)
+
+print(fig_redox_resilience)
+
+invisible(grDevices::dev.off())
 
 ggplot2::ggsave(
-  filename = file.path(
-    figure_out_dir,
-    "fig_redox_resilience.tiff"
-  ),
-  plot = fig_redox_resilience_publish,
-  width = 11.6,
-  height = 14.0,
+  filename = tiff_file,
+  plot = fig_redox_resilience,
+  width = 14,
+  height = 17,
   units = "in",
   dpi = 1200,
   compression = "lzw",
@@ -1782,24 +1742,23 @@ ggplot2::ggsave(
 )
 
 ggplot2::ggsave(
-  filename = file.path(
-    figure_out_dir,
-    "fig_redox_resilience.png"
-  ),
-  plot = fig_redox_resilience_publish,
-  width = 11.6,
-  height = 14.0,
+  filename = png_file,
+  plot = fig_redox_resilience,
+  width = 14,
+  height = 17,
   units = "in",
   dpi = 1200,
   bg = "white",
   limitsize = FALSE
 )
-
-# Save session info -------------------------------------------------------
 
 writeLines(
   capture.output(sessionInfo()),
   file.path(out_dir, "session_info.txt")
 )
 
-message("Done. Figure and processed datasets saved to: ", out_dir)
+message("Saved PDF: ", normalizePath(pdf_file))
+message("Saved TIFF: ", normalizePath(tiff_file))
+message("Saved PNG: ", normalizePath(png_file))
+message("Processed datasets saved to: ", normalizePath(data_out_dir))
+
