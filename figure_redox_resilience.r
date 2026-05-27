@@ -1253,33 +1253,42 @@ fig_redox_resilience_publish <- (
 
 # ============================================================
 # Li et al. 2025 mechanistic closure panels
+# Real workbook extraction + final figure export
 # ============================================================
 
-# ------------------------------------------------------------
-# PANEL K
-# Coupled O2 + Eh + pH trajectories
-# ------------------------------------------------------------
-fig1_li <- readxl::read_xlsx(
-  file.path(data_dir, "Li 2025 Ncom.xlsx"),
-  sheet = "Figure 1",
-  col_names = FALSE,
-  col_types = "text"
-)
+li_file <- file.path(data_dir, "Li 2025 Ncom.xlsx")
+
+read_li_raw <- function(sheet) {
+  readxl::read_xlsx(
+    li_file,
+    sheet = sheet,
+    col_names = FALSE,
+    col_types = "text"
+  )
+}
+
+num <- function(x) {
+  readr::parse_number(as.character(x))
+}
+
+fig1_li <- read_li_raw("Figure 1")
+
+# Panel K -----------------------------------------------------------------
 
 li_k_real <- dplyr::bind_rows(
   tibble::tibble(
-    time = readr::parse_number(fig1_li$...1),
-    value = readr::parse_number(fig1_li$...2),
+    time = num(fig1_li$...1),
+    value = num(fig1_li$...2),
     variable = "Oxygen"
   ),
   tibble::tibble(
-    time = readr::parse_number(fig1_li$...6),
-    value = readr::parse_number(fig1_li$...7),
+    time = num(fig1_li$...6),
+    value = num(fig1_li$...7),
     variable = "Redox potential"
   ),
   tibble::tibble(
-    time = readr::parse_number(fig1_li$...10),
-    value = readr::parse_number(fig1_li$...11),
+    time = num(fig1_li$...10),
+    value = num(fig1_li$...11),
     variable = "pH"
   )
 ) |>
@@ -1292,219 +1301,91 @@ save_dataset(li_k_real, "li_2025", "panel_k_oxygen_eh_ph_real")
 
 p_li_k <- li_k_real |>
   ggplot2::ggplot(
-    ggplot2::aes(time, signal, colour = variable, fill = variable)
+    ggplot2::aes(time, signal, colour = variable)
   ) +
-  ggplot2::geom_line(linewidth = 0.85, alpha = 0.78) +
+  ggplot2::geom_line(linewidth = 0.55, alpha = 0.45) +
   ggplot2::geom_smooth(
     method = "loess",
     formula = y ~ x,
     se = FALSE,
-    linewidth = 1.05,
-    alpha = 0.9,
-    span = 0.18
+    linewidth = 0.95,
+    span = 0.20
   ) +
   ggplot2::scale_colour_manual(
     values = c(
-      "Oxygen" = "#c62828",
-      "pH" = "#2e7d32",
-      "Redox potential" = "#1565c0"
-    )
-  ) +
-  ggplot2::scale_fill_manual(
-    values = c(
-      "Oxygen" = "#c62828",
-      "pH" = "#2e7d32",
-      "Redox potential" = "#1565c0"
+      "Oxygen" = "#C62828",
+      "Redox potential" = "#1565C0",
+      "pH" = "#2E7D32"
     )
   ) +
   ggplot2::labs(
-    title = "K  Coupled oxygen, redox & proton oscillations govern recovery trajectories",
+    title = "K  Coupled oxygen-redox-proton oscillations govern recovery",
     subtitle = "Li et al. trajectories scaled within variable for comparison",
     x = "Time (h)",
-    y = "Scaled trajectory intensity"
+    y = "Scaled trajectory intensity",
+    colour = NULL
   ) +
   theme_redox() +
   ggplot2::theme(legend.position = "top")
 
-# o2_df <- tibble(
-#   time = c(0, 3, 6, 9, 12, 18, 24),
-#   oxygen = c(0.18, 0.55, 0.82, 0.74, 0.58, 0.40, 0.22)
-# )
-# 
-# eh_df <- tibble(
-#   time = c(0, 3, 6, 9, 12, 18, 24),
-#   eh = c(-120, -30, 85, 62, 24, -22, -80)
-# )
-# 
-# ph_df <- tibble(
-#   time = c(0, 3, 6, 9, 12, 18, 24),
-#   ph = c(6.2, 6.5, 6.8, 6.7, 6.5, 6.3, 6.1)
-# )
-# 
-# o2_scaled <- o2_df |>
-#   mutate(
-#     signal = scales::rescale(oxygen),
-#     variable = "Oxygen"
-#   )
-# 
-# eh_scaled <- eh_df |>
-#   mutate(
-#     signal = scales::rescale(eh),
-#     variable = "Redox potential"
-#   )
-# 
-# ph_scaled <- ph_df |>
-#   mutate(
-#     signal = scales::rescale(ph),
-#     variable = "pH"
-#   )
-# 
-# oscillation_long <- bind_rows(
-#   o2_scaled,
-#   eh_scaled,
-#   ph_scaled
-# )
-# 
-# save_dataset(
-#   oscillation_long,
-#   "li_2025",
-#   "panel_k_oxygen_eh_ph"
-# )
-# 
-# p_li_k <- oscillation_long |>
-#   
-#   ggplot(
-#     aes(
-#       time,
-#       signal,
-#       colour = variable
-#     )
-#   ) +
-#   
-#   geom_smooth(
-#     aes(fill = variable),
-#     method = "loess",
-#     formula = y ~ x,
-#     se = TRUE,
-#     linewidth = 1.05,
-#     alpha = 0.12
-#   ) +
-#   
-#   geom_line(
-#     linewidth = 1.05,
-#     alpha = 0.95
-#   ) +
-#   
-#   geom_point(
-#     size = 1.25,
-#     alpha = 0.72
-#   ) +
-#   
-#   scale_colour_manual(
-#     values = c(
-#       "Oxygen" = "#C62828",
-#       "Redox potential" = "#1565C0",
-#       "pH" = "#2E7D32"
-#     )
-#   ) +
-#   
-#   scale_fill_manual(
-#     values = c(
-#       "Oxygen" = "#C62828",
-#       "Redox potential" = "#1565C0",
-#       "pH" = "#2E7D32"
-#     )
-#   ) +
-#   
-#   labs(
-#     title =
-#       "K  Coupled oxygen, redox and proton oscillations govern recovery trajectories",
-#     
-#     subtitle =
-#       "Diel root oxygen loss synchronizes nonlinear oxygen, Eh and pH recovery dynamics",
-#     
-#     x = "Time (h)",
-#     y = "Scaled trajectory intensity"
-#   ) +
-#   
-#   coord_cartesian(expand = FALSE) +
-#   
-#   theme_redox() +
-#   
-#   theme(
-#     legend.position = "top"
-#   )
-
-# ------------------------------------------------------------
-# PANEL L
-# Electron-buffering architecture
-# Fancy violin panel
-# ------------------------------------------------------------
+# Panel L -----------------------------------------------------------------
 
 set.seed(123)
 
-buffer_df <- tibble(
-  
+li_eec_real <- tibble::tibble(
+  compartment = factor(
+    c("Bulk soil", "Rhizosphere", "Iron plaque"),
+    levels = c("Bulk soil", "Rhizosphere", "Iron plaque")
+  ),
+  eec = c(1.14, 1.20, 1.72)
+)
+
+li_eec_reconstructed <- tibble::tibble(
   compartment = c(
     rep("Bulk soil", 18),
     rep("Rhizosphere", 18),
     rep("Iron plaque", 18)
   ),
-  
   eec = c(
     rnorm(18, 1.14, 0.05),
     rnorm(18, 1.20, 0.06),
     rnorm(18, 1.72, 0.08)
   )
-)
-
-buffer_df$compartment <- factor(
-  buffer_df$compartment,
-  levels = c(
-    "Bulk soil",
-    "Rhizosphere",
-    "Iron plaque"
+) |>
+  dplyr::mutate(
+    compartment = factor(
+      compartment,
+      levels = c("Bulk soil", "Rhizosphere", "Iron plaque")
+    )
   )
-)
 
-save_dataset(
-  buffer_df,
-  "li_2025",
-  "panel_l_electron_buffering"
-)
+save_dataset(li_eec_real, "li_2025", "panel_l_eec_real_values")
+save_dataset(li_eec_reconstructed, "li_2025", "panel_l_eec_reconstructed_distribution")
 
-p_li_l <- ggplot(
-  buffer_df,
-  aes(
-    compartment,
-    eec,
-    fill = compartment
-  )
-) +
-  
-  geom_violin(
+p_li_l <- li_eec_reconstructed |>
+  ggplot2::ggplot(
+    ggplot2::aes(compartment, eec, fill = compartment)
+  ) +
+  ggplot2::geom_violin(
     width = 0.92,
     alpha = 0.84,
     colour = NA,
     trim = FALSE
   ) +
-  
-  geom_boxplot(
+  ggplot2::geom_boxplot(
     width = 0.13,
     fill = "white",
     colour = "grey20",
     linewidth = 0.35,
     outlier.shape = NA
   ) +
-  
-  geom_jitter(
+  ggplot2::geom_jitter(
     width = 0.08,
-    size = 1.15,
-    alpha = 0.42,
+    size = 1.05,
+    alpha = 0.35,
     colour = "grey10"
   ) +
-  
-  stat_summary(
+  ggplot2::stat_summary(
     fun = mean,
     geom = "point",
     size = 3,
@@ -1513,138 +1394,95 @@ p_li_l <- ggplot(
     colour = "black",
     stroke = 0.7
   ) +
-  
-  stat_summary(
-    aes(group = 1),
+  ggplot2::stat_summary(
+    ggplot2::aes(group = 1),
     fun = mean,
     geom = "line",
     linewidth = 1,
     colour = "#8E0000",
     alpha = 0.72
   ) +
-  
-  scale_fill_manual(
+  ggplot2::scale_fill_manual(
     values = c(
       "Bulk soil" = "#FFCC80",
       "Rhizosphere" = "#FF7043",
       "Iron plaque" = "#8E0000"
     )
   ) +
-  
-  labs(
-    title =
-      "L  Root interfaces concentrate electron-buffering capacity",
-    
-    subtitle =
-      "Electron exchange capacity intensifies toward reactive iron plaques",
-    
+  ggplot2::labs(
+    title = "L  Root interfaces concentrate electron-buffering capacity",
+    subtitle = "EEC intensifies from bulk soil toward reactive iron plaques",
     x = NULL,
-    
-    y = expression(
-      "Electron exchange capacity (mmol e"^-1 * " g"^-1 * ")"
-    )
+    y = expression("Electron exchange capacity (mmol e"^-1 * " g"^-1 * ")")
   ) +
-  
   theme_redox() +
-  
-  theme(
+  ggplot2::theme(
     legend.position = "none",
-    panel.grid.major.x = element_blank()
+    panel.grid.major.x = ggplot2::element_blank()
   )
 
-# ------------------------------------------------------------
-# PANEL M
-# Reactive Fe + phosphorus coupling
-# ------------------------------------------------------------
+# Panel M -----------------------------------------------------------------
 
-fe_df <- tibble(
-  
-  compartment = c(
-    "Iron plaque",
-    "Rhizosphere",
-    "Bulk soil"
+li_fe <- tibble::tibble(
+  compartment = factor(
+    c("Bulk soil", "Rhizosphere", "Iron plaque"),
+    levels = c("Bulk soil", "Rhizosphere", "Iron plaque")
   ),
-  
-  total_fe = c(
-    68.5,
-    5.8,
-    1.5
-  ),
-  
-  reactive_fe = c(
-    100.0,
-    31.2,
-    26.1
-  )
+  total_fe = c(26.1, 31.2, 100.0),
+  reactive_fe = c(1.5, 5.8, 68.5)
 )
 
-save_dataset(
-  fe_df,
-  "li_2025",
-  "panel_m_fe_phosphorus"
-)
+save_dataset(li_fe, "li_2025", "panel_m_fe_pools")
 
-fe_long <- fe_df |>
-  
-  pivot_longer(
-    -compartment,
+li_fe_long <- li_fe |>
+  tidyr::pivot_longer(
+    cols = c(total_fe, reactive_fe),
     names_to = "pool",
     values_to = "value"
+  ) |>
+  dplyr::mutate(
+    pool = dplyr::recode(
+      pool,
+      total_fe = "Total Fe",
+      reactive_fe = "Reactive Fe"
+    )
   )
 
-p_li_m <- fe_long |>
-  
-  ggplot(
-    aes(
-      compartment,
-      value,
-      fill = pool
-    )
+p_li_m <- li_fe_long |>
+  ggplot2::ggplot(
+    ggplot2::aes(compartment, value, fill = pool)
   ) +
-  
-  geom_col(
-    position = position_dodge(width = 0.72),
+  ggplot2::geom_col(
+    position = ggplot2::position_dodge(width = 0.72),
     width = 0.64,
     colour = "white",
     linewidth = 0.35
   ) +
-  
-  geom_text(
-    aes(label = round(value, 1)),
-    position = position_dodge(width = 0.72),
+  ggplot2::geom_text(
+    ggplot2::aes(label = round(value, 1)),
+    position = ggplot2::position_dodge(width = 0.72),
     vjust = -0.26,
     size = 2.6
   ) +
-  
-  scale_fill_manual(
+  ggplot2::scale_fill_manual(
     values = c(
-      total_fe = "#8E0000",
-      reactive_fe = "#FF8F00"
-    ),
-    labels = c(
-      "Total Fe",
-      "Reactive Fe"
+      "Total Fe" = "#FF8F00",
+      "Reactive Fe" = "#8E0000"
     )
   ) +
-  
-  labs(
-    title =
-      "M  Reactive Fe turnover couples to phosphorus mobilization",
-    
-    subtitle =
-      "Root interfaces synchronize iron cycling and nutrient release",
-    
+  ggplot2::coord_cartesian(ylim = c(0, 112), clip = "off") +
+  ggplot2::labs(
+    title = "M  Reactive Fe turnover couples to phosphorus mobilization",
+    subtitle = "Root interfaces synchronize iron cycling and nutrient release",
     x = NULL,
-    y = "Relative Fe pool"
+    y = "Relative Fe pool",
+    fill = NULL
   ) +
-  
-  theme_redox()
+  theme_redox() +
+  ggplot2::theme(legend.position = "top")
 
-# ============================================================
-# FINAL ASSEMBLY
-# ============================================================
+# Final assembly ----------------------------------------------------------
 
- 
 source_caption <- paste(
   "Data sources:",
   "A, Lacroix et al. 2022;",
@@ -1655,7 +1493,8 @@ source_caption <- paste(
   "F, Liebmann et al. freeze-thaw redox dataset;",
   "G, Sennett et al. 2024;",
   "H-J, Liu et al. 2025, DOI 10.17632/bcb5rnyvhk.1;",
-  "K-M, Li et al. 2025, Nature Communications"
+  "K-M, Li et al. 2025, Nature Communications 16:4413.",
+  "Panel L violin envelopes are reconstructed from reported EEC central values for visualization."
 )
 
 fig_redox_resilience <- (
@@ -1720,8 +1559,8 @@ png_file <- file.path(
 
 grDevices::cairo_pdf(
   filename = pdf_file,
-  width = 17,
-  height = 19,
+  width = 16,
+  height = 17,
   onefile = TRUE
 )
 
@@ -1732,7 +1571,7 @@ invisible(grDevices::dev.off())
 ggplot2::ggsave(
   filename = tiff_file,
   plot = fig_redox_resilience,
-  width = 14,
+  width = 16,
   height = 17,
   units = "in",
   dpi = 1200,
@@ -1744,7 +1583,7 @@ ggplot2::ggsave(
 ggplot2::ggsave(
   filename = png_file,
   plot = fig_redox_resilience,
-  width = 14,
+  width = 16,
   height = 17,
   units = "in",
   dpi = 1200,
