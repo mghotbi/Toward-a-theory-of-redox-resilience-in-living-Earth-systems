@@ -1560,7 +1560,7 @@ png_file <- file.path(
 grDevices::cairo_pdf(
   filename = pdf_file,
   width = 16,
-  height = 17,
+  height = 20,
   onefile = TRUE
 )
 
