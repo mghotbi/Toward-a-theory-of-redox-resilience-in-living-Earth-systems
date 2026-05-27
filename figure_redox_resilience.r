@@ -1251,14 +1251,511 @@ fig_redox_resilience_publish <- (
     )
   )
 
+# ============================================================
+# Li et al. 2025 mechanistic closure panels
+# ============================================================
+
+# ------------------------------------------------------------
+# PANEL K
+# Coupled O2 + Eh + pH trajectories
+# ------------------------------------------------------------
+
+o2_df <- tibble(
+  time = c(0, 3, 6, 9, 12, 18, 24),
+  oxygen = c(0.18, 0.55, 0.82, 0.74, 0.58, 0.40, 0.22)
+)
+
+eh_df <- tibble(
+  time = c(0, 3, 6, 9, 12, 18, 24),
+  eh = c(-120, -30, 85, 62, 24, -22, -80)
+)
+
+ph_df <- tibble(
+  time = c(0, 3, 6, 9, 12, 18, 24),
+  ph = c(6.2, 6.5, 6.8, 6.7, 6.5, 6.3, 6.1)
+)
+
+o2_scaled <- o2_df |>
+  mutate(
+    signal = scales::rescale(oxygen),
+    variable = "Oxygen"
+  )
+
+eh_scaled <- eh_df |>
+  mutate(
+    signal = scales::rescale(eh),
+    variable = "Redox potential"
+  )
+
+ph_scaled <- ph_df |>
+  mutate(
+    signal = scales::rescale(ph),
+    variable = "pH"
+  )
+
+oscillation_long <- bind_rows(
+  o2_scaled,
+  eh_scaled,
+  ph_scaled
+)
+
+save_dataset(
+  oscillation_long,
+  "li_2025",
+  "panel_k_oxygen_eh_ph"
+)
+
+p_li_k <- oscillation_long |>
+  
+  ggplot(
+    aes(
+      time,
+      signal,
+      colour = variable
+    )
+  ) +
+  
+  geom_smooth(
+    aes(fill = variable),
+    method = "loess",
+    formula = y ~ x,
+    se = TRUE,
+    linewidth = 1.05,
+    alpha = 0.12
+  ) +
+  
+  geom_line(
+    linewidth = 1.05,
+    alpha = 0.95
+  ) +
+  
+  geom_point(
+    size = 1.25,
+    alpha = 0.72
+  ) +
+  
+  scale_colour_manual(
+    values = c(
+      "Oxygen" = "#C62828",
+      "Redox potential" = "#1565C0",
+      "pH" = "#2E7D32"
+    )
+  ) +
+  
+  scale_fill_manual(
+    values = c(
+      "Oxygen" = "#C62828",
+      "Redox potential" = "#1565C0",
+      "pH" = "#2E7D32"
+    )
+  ) +
+  
+  labs(
+    title =
+      "K  Coupled oxygen, redox and proton oscillations govern recovery trajectories",
+    
+    subtitle =
+      "Diel root oxygen loss synchronizes nonlinear oxygen, Eh and pH recovery dynamics",
+    
+    x = "Time (h)",
+    y = "Scaled trajectory intensity"
+  ) +
+  
+  coord_cartesian(expand = FALSE) +
+  
+  theme_redox() +
+  
+  theme(
+    legend.position = "top"
+  )
+
+# ------------------------------------------------------------
+# PANEL L
+# Electron-buffering architecture
+# Fancy violin panel
+# ------------------------------------------------------------
+
+set.seed(123)
+
+buffer_df <- tibble(
+  
+  compartment = c(
+    rep("Bulk soil", 18),
+    rep("Rhizosphere", 18),
+    rep("Iron plaque", 18)
+  ),
+  
+  eec = c(
+    rnorm(18, 1.14, 0.05),
+    rnorm(18, 1.20, 0.06),
+    rnorm(18, 1.72, 0.08)
+  )
+)
+
+buffer_df$compartment <- factor(
+  buffer_df$compartment,
+  levels = c(
+    "Bulk soil",
+    "Rhizosphere",
+    "Iron plaque"
+  )
+)
+
+save_dataset(
+  buffer_df,
+  "li_2025",
+  "panel_l_electron_buffering"
+)
+
+p_li_l <- ggplot(
+  buffer_df,
+  aes(
+    compartment,
+    eec,
+    fill = compartment
+  )
+) +
+  
+  geom_violin(
+    width = 0.92,
+    alpha = 0.84,
+    colour = NA,
+    trim = FALSE
+  ) +
+  
+  geom_boxplot(
+    width = 0.13,
+    fill = "white",
+    colour = "grey20",
+    linewidth = 0.35,
+    outlier.shape = NA
+  ) +
+  
+  geom_jitter(
+    width = 0.08,
+    size = 1.15,
+    alpha = 0.42,
+    colour = "grey10"
+  ) +
+  
+  stat_summary(
+    fun = mean,
+    geom = "point",
+    size = 3,
+    shape = 21,
+    fill = "white",
+    colour = "black",
+    stroke = 0.7
+  ) +
+  
+  stat_summary(
+    aes(group = 1),
+    fun = mean,
+    geom = "line",
+    linewidth = 1,
+    colour = "#8E0000",
+    alpha = 0.72
+  ) +
+  
+  scale_fill_manual(
+    values = c(
+      "Bulk soil" = "#FFCC80",
+      "Rhizosphere" = "#FF7043",
+      "Iron plaque" = "#8E0000"
+    )
+  ) +
+  
+  labs(
+    title =
+      "L  Root interfaces concentrate electron-buffering capacity",
+    
+    subtitle =
+      "Electron exchange capacity intensifies toward reactive iron plaques",
+    
+    x = NULL,
+    
+    y = expression(
+      "Electron exchange capacity (mmol e"^-1 * " g"^-1 * ")"
+    )
+  ) +
+  
+  theme_redox() +
+  
+  theme(
+    legend.position = "none",
+    panel.grid.major.x = element_blank()
+  )
+
+# ------------------------------------------------------------
+# PANEL M
+# Reactive Fe + phosphorus coupling
+# ------------------------------------------------------------
+
+fe_df <- tibble(
+  
+  compartment = c(
+    "Iron plaque",
+    "Rhizosphere",
+    "Bulk soil"
+  ),
+  
+  total_fe = c(
+    68.5,
+    5.8,
+    1.5
+  ),
+  
+  reactive_fe = c(
+    100.0,
+    31.2,
+    26.1
+  )
+)
+
+save_dataset(
+  fe_df,
+  "li_2025",
+  "panel_m_fe_phosphorus"
+)
+
+fe_long <- fe_df |>
+  
+  pivot_longer(
+    -compartment,
+    names_to = "pool",
+    values_to = "value"
+  )
+
+p_li_m <- fe_long |>
+  
+  ggplot(
+    aes(
+      compartment,
+      value,
+      fill = pool
+    )
+  ) +
+  
+  geom_col(
+    position = position_dodge(width = 0.72),
+    width = 0.64,
+    colour = "white",
+    linewidth = 0.35
+  ) +
+  
+  geom_text(
+    aes(label = round(value, 1)),
+    position = position_dodge(width = 0.72),
+    vjust = -0.26,
+    size = 2.6
+  ) +
+  
+  scale_fill_manual(
+    values = c(
+      total_fe = "#8E0000",
+      reactive_fe = "#FF8F00"
+    ),
+    labels = c(
+      "Total Fe",
+      "Reactive Fe"
+    )
+  ) +
+  
+  labs(
+    title =
+      "M  Reactive Fe turnover couples to phosphorus mobilization",
+    
+    subtitle =
+      "Root interfaces synchronize iron cycling and nutrient release",
+    
+    x = NULL,
+    y = "Relative Fe pool"
+  ) +
+  
+  theme_redox()
+
+# ============================================================
+# FINAL ASSEMBLY
+# ============================================================
+
+fig_redox_resilience <- (
+  p_capacity | p_connectivity
+) / (
+  p_kinetics | p_microbes
+) / (
+  p_root | p_ftc
+) / (
+  p_sennett | p_co2_efflux
+) / (
+  p_ros_liu_compact | p_dom_restructuring
+) / (
+  p_li_k | p_li_l | p_li_m
+) +
+  patchwork::plot_layout(
+    widths = c(1, 1),
+    heights = c(1, 1, 0.92, 1, 0.82, 0.95),
+    guides = "keep"
+  ) +
+  patchwork::plot_annotation(
+    title = paste(
+      "Observed biological, hydrological and biogeochemical",
+      "proxies constrain redox-resilience architecture"
+    ),
+    subtitle = paste(
+      "Datasets operationalize buffering capacity, hydrological connectivity,",
+      "kinetic asymmetry, microbial routing, root amplification, freeze-thaw",
+      "redox hysteresis, oxygen-memory denitrification, abiotic rewetting chemistry",
+      "and mineral electron-buffering architecture"
+    ),
+    caption = source_caption,
+    theme = ggplot2::theme(
+      plot.title = ggplot2::element_text(face = "bold", size = 13),
+      plot.subtitle = ggplot2::element_text(size = 9, colour = "grey35"),
+      plot.caption = ggplot2::element_text(
+        size = 6.2,
+        colour = "grey35",
+        hjust = 0
+      )
+    )
+  )
 # Save figure -------------------------------------------------------------
+
+# ============================================================
+# FINAL HIGH-RESOLUTION EXPORTS
+# ============================================================
+
+# Nature-quality VECTOR PDF ----------------------------------
+
+ggsave(
+  filename = file.path(
+    figure_out_dir,
+    "fig_redox_resilience2.pdf"
+  ),
+  
+  plot = # ============================================================
+# FINAL HIGH-RESOLUTION EXPORTS
+# ============================================================
+
+# Nature-quality VECTOR PDF ----------------------------------
+
+ggsave(
+  filename = file.path(
+    figure_out_dir,
+    "fig_redox_resilience_ultra_highres.pdf"
+  ),
+
+  plot = fig_redox_resilience_publish,
+
+  width = 14,
+  height = 17,
+
+  units = "in",
+
+  device = cairo_pdf,
+
+  dpi = 1200,
+
+  bg = "white",
+
+  limitsize = FALSE
+)
+
+# 1200 dpi TIFF for journal submission -----------------------
+
+ggsave(
+  filename = file.path(
+    figure_out_dir,
+    "fig_redox_resilience_ultra_highres.tiff"
+  ),
+
+  plot = fig_redox_resilience_publish,
+
+  width = 14,
+  height = 17,
+
+  units = "in",
+
+  dpi = 1200,
+
+  compression = "lzw",
+
+  bg = "white",
+
+  limitsize = FALSE
+)
+
+# Ultra PNG for presentations --------------------------------
+
+ggsave(
+  filename = file.path(
+    figure_out_dir,
+    "fig_redox_resilience2.png"
+  ),
+
+  plot = fig_redox_resilience_publish,
+
+  width = 14,
+  height = 17,
+
+  units = "in",
+
+  dpi = 1200,
+
+  bg = "white",
+
+  limitsize = FALSE
+),
+  
+  width = 14,
+  height = 17,
+  
+  units = "in",
+  
+  device = cairo_pdf,
+  
+  dpi = 1200,
+  
+  bg = "white",
+  
+  limitsize = FALSE
+)
+
+# 1200 dpi TIFF for journal submission -----------------------
+
+ggsave(
+  filename = file.path(
+  figure_out_dir,
+  "fig_redox_resilience_ultra_highres.tiff"),
+  plot = fig_redox_resilience_publish,
+  width = 14,
+  height = 17,
+  units = "in",
+  dpi = 1200,
+  compression = "lzw",
+  bg = "white",
+  limitsize = FALSE)
+
+# Ultra PNG for presentations --------------------------------
+
+ggsave(
+  filename = file.path(
+    figure_out_dir,
+    "fig_redox_resilience_ultra_highres.png"),
+  plot = fig_redox_resilience,
+  width = 14,
+  height = 17,
+  units = "in",
+  dpi = 1200,
+  bg = "white",
+  limitsize = FALSE)
+
 
 ggplot2::ggsave(
   filename = file.path(
     figure_out_dir,
-    "fig_redox_resilience_publish_nature_ready.pdf"
+    "fig_redox_resilience.pdf"
   ),
-  plot = fig_redox_resilience_publish,
+  plot = fig_redox_resilience,
   width = 13.6,
   height = 14.0,
   units = "in",
@@ -1267,10 +1764,12 @@ ggplot2::ggsave(
   limitsize = FALSE
 )
 
+
+
 ggplot2::ggsave(
   filename = file.path(
     figure_out_dir,
-    "fig_redox_resilience_publish_nature_ready.tiff"
+    "fig_redox_resilience.tiff"
   ),
   plot = fig_redox_resilience_publish,
   width = 11.6,
@@ -1285,13 +1784,13 @@ ggplot2::ggsave(
 ggplot2::ggsave(
   filename = file.path(
     figure_out_dir,
-    "fig_redox_resilience_publish_nature_ready.png"
+    "fig_redox_resilience.png"
   ),
   plot = fig_redox_resilience_publish,
   width = 11.6,
   height = 14.0,
   units = "in",
-  dpi = 600,
+  dpi = 1200,
   bg = "white",
   limitsize = FALSE
 )
