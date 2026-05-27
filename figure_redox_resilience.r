@@ -137,7 +137,7 @@ angle_cols <- c(
 phase_cols <- c(
   "Freezing" = "#d32f2f",
   "Thawing" = "#1976d2"
-)
+) 
 
 trajectory_cols <- c(
   "Early legacy establishment" = "#d32f2f",
