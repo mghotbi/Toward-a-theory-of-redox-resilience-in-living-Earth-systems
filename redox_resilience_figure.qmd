@@ -1,3 +1,4 @@
+
 ---
 title: "Redox resilience architecture figure"
 format:
@@ -13,13 +14,29 @@ execute:
 # Final figure
 
 ```{r setup}
-knitr::opts_chunk$set(fig.width = 11.6, fig.height = 14, dpi = 1000)
+knitr::opts_chunk$set(
+  fig.width = 11.6,
+  fig.height = 14,
+  dpi = 1000
+)
+
 ```
+ 
 
 ```{r build-figure}
-source("figure_redox_resilience.r")
+source("Redox_resilience.r")
+```
+
+```{r}
+knitr::include_graphics(png_file)
 ```
 
 ```{r show-figure, out.width='100%'}
+
 fig_redox_resilience 
+
+
 ```
+ 
+ 
+
