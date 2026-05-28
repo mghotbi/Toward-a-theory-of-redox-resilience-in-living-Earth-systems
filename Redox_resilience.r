@@ -1481,7 +1481,456 @@ p_li_m <- li_fe_long |>
   theme_redox() +
   ggplot2::theme(legend.position = "top")
 
-# Final assembly ----------------------------------------------------------
+
+# ============================================================
+# Redox resilience closure figure
+# Abiotic and biotic electron-routing memory
+# Panels K–N
+# ============================================================
+
+library(tidyverse)
+library(readxl)
+library(janitor)
+library(patchwork)
+library(scales)
+library(grid)
+
+# Paths -------------------------------------------------------------------
+
+data_dir <- "/Users/mitraghotbi/Library/CloudStorage/GoogleDrive-mitra.ghotbi@gmail.com/My Drive/Review on Redox Resilience MG 2026 Jan/NGEO2026/data"
+
+out_dir <- file.path(data_dir, "github_ready_figure_exports")
+data_out_dir <- file.path(out_dir, "processed_data")
+figure_out_dir <- file.path(out_dir, "figures")
+
+purrr::walk(
+  c(out_dir, data_out_dir, figure_out_dir),
+  ~ dir.create(.x, recursive = TRUE, showWarnings = FALSE)
+)
+
+# Helpers -----------------------------------------------------------------
+
+find_file <- function(paths) {
+  existing <- paths[file.exists(paths)]
+  
+  if (length(existing) == 0) {
+    stop("None of these files exist:\n", paste(paths, collapse = "\n"))
+  }
+  
+  existing[[1]]
+}
+
+num <- function(x) {
+  readr::parse_number(as.character(x))
+}
+
+save_dataset <- function(data, prefix, name) {
+  readr::write_csv(
+    data,
+    file.path(data_out_dir, paste0(prefix, "_", name, ".csv"))
+  )
+  
+  saveRDS(
+    data,
+    file.path(data_out_dir, paste0(prefix, "_", name, ".rds"))
+  )
+  
+  invisible(data)
+}
+
+theme_redox <- function(base_size = 8.5) {
+  ggplot2::theme_minimal(base_size = base_size, base_family = "Helvetica") +
+    ggplot2::theme(
+      panel.grid.minor = ggplot2::element_blank(),
+      panel.grid.major = ggplot2::element_line(
+        colour = "grey90",
+        linewidth = 0.25
+      ),
+      axis.text = ggplot2::element_text(colour = "grey15"),
+      axis.title = ggplot2::element_text(colour = "black"),
+      plot.title = ggplot2::element_text(
+        face = "bold",
+        size = base_size + 2.2
+      ),
+      plot.subtitle = ggplot2::element_text(
+        colour = "grey35",
+        lineheight = 1.05
+      ),
+      strip.text = ggplot2::element_text(face = "bold"),
+      legend.title = ggplot2::element_blank(),
+      legend.position = "top",
+      plot.margin = ggplot2::margin(5, 5, 5, 5)
+    )
+}
+
+theme_set(theme_redox())
+
+# Palettes ----------------------------------------------------------------
+
+li_cols <- c(
+  "Oxygen" = "#C62828",
+  "Redox potential" = "#1565C0",
+  "pH" = "#2E7D32"
+)
+
+eec_cols <- c(
+  "Bulk soil" = "#FFCC80",
+  "Rhizosphere" = "#FF7043",
+  "Iron plaque" = "#8E0000"
+)
+
+fe_cols <- c(
+  "Reactive Fe" = "#8E0000",
+  "P-associated pool" = "#FF8F00"
+)
+
+gene_cols <- c(
+  "Nitrate reduction" = "#6A1B9A",
+  "Nitrite reduction" = "#C62828",
+  "NO reduction" = "#EF6C00",
+  "N₂O reduction" = "#1565C0"
+)
+
+# ============================================================
+# Li et al. 2025 — abiotic memory
+# ============================================================
+
+li_file <- find_file(c(
+  file.path(data_dir, "Li 2025 Ncom.xlsx"),
+  file.path(data_dir, "li 2025 rythmic.xlsx")
+))
+
+fig1_li <- readxl::read_xlsx(
+  li_file,
+  sheet = 1,
+  col_names = FALSE,
+  col_types = "text"
+)
+
+# Panel K -----------------------------------------------------------------
+
+li_k <- dplyr::bind_rows(
+  tibble::tibble(
+    time = num(fig1_li$...1),
+    value = num(fig1_li$...2),
+    variable = "Oxygen"
+  ),
+  tibble::tibble(
+    time = num(fig1_li$...6),
+    value = num(fig1_li$...7),
+    variable = "Redox potential"
+  ),
+  tibble::tibble(
+    time = num(fig1_li$...10),
+    value = num(fig1_li$...11),
+    variable = "pH"
+  )
+) |>
+  dplyr::filter(!is.na(time), !is.na(value)) |>
+  dplyr::group_by(variable) |>
+  dplyr::mutate(signal = scales::rescale(value)) |>
+  dplyr::ungroup()
+
+save_dataset(li_k, "li2025", "panel_k_o2_eh_ph")
+
+p_li_k <- li_k |>
+  ggplot2::ggplot(
+    ggplot2::aes(time, signal, colour = variable)
+  ) +
+  ggplot2::geom_line(linewidth = 0.55, alpha = 0.38) +
+  ggplot2::geom_smooth(
+    method = "loess",
+    formula = y ~ x,
+    se = FALSE,
+    linewidth = 1.15,
+    span = 0.18
+  ) +
+  ggplot2::scale_colour_manual(values = li_cols) +
+  ggplot2::labs(
+    title = "K  O₂–Eh–pH hysteretic forcing",
+    subtitle = "Rhythmic root oxygen release generates asynchronous redox recovery trajectories",
+    x = "Time (h)",
+    y = "Scaled trajectory intensity",
+    colour = NULL
+  ) +
+  theme_redox()
+
+# Panel L -----------------------------------------------------------------
+
+set.seed(123)
+
+li_eec <- tibble::tibble(
+  compartment = factor(
+    c("Bulk soil", "Rhizosphere", "Iron plaque"),
+    levels = c("Bulk soil", "Rhizosphere", "Iron plaque")
+  ),
+  eec = c(1.14, 1.20, 1.72)
+)
+
+li_eec_distribution <- li_eec |>
+  dplyr::mutate(sd = c(0.05, 0.06, 0.08)) |>
+  dplyr::group_by(compartment, eec, sd) |>
+  dplyr::reframe(
+    eec = rnorm(24, mean = eec, sd = sd)
+  ) |>
+  dplyr::ungroup()
+
+save_dataset(li_eec, "li2025", "panel_l_eec_reported")
+save_dataset(li_eec_distribution, "li2025", "panel_l_eec_reconstructed")
+
+p_li_l <- li_eec_distribution |>
+  ggplot2::ggplot(
+    ggplot2::aes(compartment, eec, fill = compartment)
+  ) +
+  ggplot2::geom_violin(
+    width = 0.92,
+    alpha = 0.84,
+    colour = NA,
+    trim = FALSE
+  ) +
+  ggplot2::geom_boxplot(
+    width = 0.14,
+    fill = "white",
+    colour = "grey20",
+    linewidth = 0.35,
+    outlier.shape = NA
+  ) +
+  ggplot2::geom_jitter(
+    width = 0.08,
+    size = 0.9,
+    alpha = 0.32,
+    colour = "grey10"
+  ) +
+  ggplot2::stat_summary(
+    fun = mean,
+    geom = "point",
+    size = 3,
+    shape = 21,
+    fill = "white",
+    colour = "black",
+    stroke = 0.6
+  ) +
+  ggplot2::stat_summary(
+    ggplot2::aes(group = 1),
+    fun = mean,
+    geom = "line",
+    linewidth = 0.95,
+    colour = "#6D0000"
+  ) +
+  ggplot2::scale_fill_manual(values = eec_cols) +
+  ggplot2::labs(
+    title = "L  Electron-buffering architecture (MER/EEC)",
+    subtitle = "Electron exchange capacity intensifies toward iron-plaque interfaces",
+    x = NULL,
+    y = expression("Electron exchange capacity (mmol e"^-1 * " g"^-1 * ")")
+  ) +
+  theme_redox() +
+  ggplot2::theme(
+    legend.position = "none",
+    panel.grid.major.x = ggplot2::element_blank()
+  )
+
+# Panel M -----------------------------------------------------------------
+
+li_fe_p <- tibble::tibble(
+  compartment = factor(
+    c("Bulk soil", "Rhizosphere", "Iron plaque"),
+    levels = c("Bulk soil", "Rhizosphere", "Iron plaque")
+  ),
+  reactive_fe = c(26.1, 31.2, 100.0),
+  phosphate_pool = c(1.5, 5.8, 68.5)
+)
+
+save_dataset(li_fe_p, "li2025", "panel_m_fe_p")
+
+li_fe_long <- li_fe_p |>
+  tidyr::pivot_longer(
+    cols = c(reactive_fe, phosphate_pool),
+    names_to = "pool",
+    values_to = "value"
+  ) |>
+  dplyr::mutate(
+    pool = dplyr::recode(
+      pool,
+      reactive_fe = "Reactive Fe",
+      phosphate_pool = "P-associated pool"
+    )
+  )
+
+p_li_m <- li_fe_long |>
+  ggplot2::ggplot(
+    ggplot2::aes(compartment, value, fill = pool)
+  ) +
+  ggplot2::geom_col(
+    position = ggplot2::position_dodge(width = 0.72),
+    width = 0.62,
+    colour = "white",
+    linewidth = 0.35
+  ) +
+  ggplot2::geom_text(
+    ggplot2::aes(label = round(value, 1)),
+    position = ggplot2::position_dodge(width = 0.72),
+    vjust = -0.28,
+    size = 2.4
+  ) +
+  ggplot2::scale_fill_manual(values = fe_cols) +
+  ggplot2::coord_cartesian(ylim = c(0, 112), clip = "off") +
+  ggplot2::labs(
+    title = "M  Reactive Fe–P mineral consequence",
+    subtitle = "Reactive iron hotspots couple electron buffering to phosphorus mobilization",
+    x = NULL,
+    y = "Relative pool",
+    fill = NULL
+  ) +
+  theme_redox()
+
+# ============================================================
+# Sennett et al. 2024 — biotic memory
+# ============================================================
+
+gene_file <- find_file(c(
+  file.path(data_dir, "geneden.xlsx"),
+  file.path(data_dir, "geneden.xls"),
+  file.path(data_dir, "geneden.csv")
+))
+
+if (grepl("\\.csv$", gene_file)) {
+  gene_raw <- readr::read_csv(gene_file, show_col_types = FALSE)
+} else {
+  gene_raw <- readxl::read_xlsx(gene_file, sheet = 1)
+}
+
+gene_clean <- gene_raw |>
+  janitor::clean_names()
+
+time_col <- dplyr::case_when(
+  "time_h" %in% names(gene_clean) ~ "time_h",
+  "time" %in% names(gene_clean) ~ "time",
+  TRUE ~ NA_character_
+)
+
+reads_col <- dplyr::case_when(
+  "reads_per_total_million_reads" %in% names(gene_clean) ~
+    "reads_per_total_million_reads",
+  "reads" %in% names(gene_clean) ~ "reads",
+  TRUE ~ NA_character_
+)
+
+if (is.na(time_col) || is.na(reads_col)) {
+  stop(
+    "Could not find time/read columns. Available columns are:\n",
+    paste(names(gene_clean), collapse = ", ")
+  )
+}
+
+sennett_genes <- gene_clean |>
+  dplyr::transmute(
+    treatment = .data[["treatment"]],
+    time = num(.data[[time_col]]),
+    gene = .data[["gene"]],
+    reads = num(.data[[reads_col]])
+  ) |>
+  dplyr::filter(
+    !is.na(treatment),
+    !is.na(time),
+    !is.na(gene),
+    !is.na(reads)
+  ) |>
+  dplyr::mutate(
+    pathway = dplyr::case_when(
+      gene %in% c("narG", "napA") ~ "Nitrate reduction",
+      gene %in% c("nirK", "nirS") ~ "Nitrite reduction",
+      gene %in% c("qNor", "cNor") ~ "NO reduction",
+      gene %in% c("nosZI", "nosZII") ~ "N₂O reduction",
+      TRUE ~ NA_character_
+    ),
+    treatment = factor(treatment, levels = c("Ox", "LA", "SA")),
+    pathway = factor(
+      pathway,
+      levels = c(
+        "Nitrate reduction",
+        "Nitrite reduction",
+        "NO reduction",
+        "N₂O reduction"
+      )
+    )
+  ) |>
+  dplyr::filter(!is.na(pathway))
+
+
+
+save_dataset(sennett_genes, "sennett2024", "panel_n_gene_raw")
+
+sennett_summary <- sennett_genes |>
+  dplyr::group_by(treatment, time, pathway) |>
+  dplyr::summarise(
+    median_reads = median(reads, na.rm = TRUE),
+    q25 = quantile(reads, 0.25, na.rm = TRUE),
+    q75 = quantile(reads, 0.75, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  dplyr::group_by(pathway) |>
+  dplyr::mutate(
+    scaled_reads = scales::rescale(median_reads),
+    scaled_q25 = scales::rescale(q25),
+    scaled_q75 = scales::rescale(q75)
+  ) |>
+  dplyr::ungroup()
+
+save_dataset(sennett_summary, "sennett2024", "panel_n_pathway_summary")
+
+p_sennett_n <- sennett_summary |>
+  ggplot2::ggplot(
+    ggplot2::aes(time, scaled_reads, colour = pathway, fill = pathway)
+  ) +
+  ggplot2::geom_ribbon(
+    ggplot2::aes(ymin = scaled_q25, ymax = scaled_q75),
+    alpha = 0.14,
+    colour = NA
+  ) +
+  ggplot2::geom_line(linewidth = 1) +
+  ggplot2::geom_point(size = 1.8) +
+  ggplot2::facet_wrap(~treatment, nrow = 1) +
+  ggplot2::scale_colour_manual(values = gene_cols) +
+  ggplot2::scale_fill_manual(values = gene_cols) +
+  ggplot2::labs(
+    title = "N  Denitrifier pathway-memory restructuring",
+    subtitle = expression(
+      "Oxygen legacy reorganizes nitrate-, nitrite-, NO- and " *
+        N[2] * O * "-reduction modules"
+    ),
+    x = "Time after oxygen perturbation (h)",
+    y = "Scaled pathway abundance",
+    colour = NULL,
+    fill = NULL
+  ) +
+  theme_redox()
+
+# ============================================================
+# Mechanistic architecture
+# ============================================================
+
+# Abiotic memory:
+#   O2 hysteresis
+#   Eh recovery lag
+#   Electron buffering
+#
+# Biotic memory:
+#   Gene-expression hysteresis
+#   Denitrifier restructuring
+#   N2O pathway routing
+#
+# Redox resilience is interpreted as distributed recovery of
+# coupled abiotic and biotic electron-routing systems rather
+# than restoration of a single equilibrium redox state.
+
+# ============================================================
+# Final figure
+# ============================================================
+
+# ============================================================
+# Final figure with all panels A–N
+# ============================================================
 
 source_caption <- paste(
   "Data sources:",
@@ -1490,11 +1939,11 @@ source_caption <- paste(
   "C, Kim et al. 2012;",
   "D, Angle et al. 2017;",
   "E, Huo et al. 2017;",
-  "F, Liebmann et al. freeze-thaw redox dataset;",
-  "G, Sennett et al. 2024;",
+  "F, Liebmann freeze-thaw redox dataset;",
+  "G and N, Sennett et al. 2024;",
   "H-J, Liu et al. 2025, DOI 10.17632/bcb5rnyvhk.1;",
-  "K-M, Li et al. 2025, Nature Communications 16:4413.",
-  "Panel L violin envelopes are reconstructed from reported EEC central values for visualization."
+  "K-M, Li et al. 2025.",
+  "Panel L violin envelopes reconstructed from reported EEC central values."
 )
 
 fig_redox_resilience <- (
@@ -1509,22 +1958,24 @@ fig_redox_resilience <- (
   p_ros_liu_compact | p_dom_restructuring
 ) / (
   p_li_k | p_li_l | p_li_m
+) / (
+  p_sennett_n
 ) +
   patchwork::plot_layout(
     widths = c(1, 1),
-    heights = c(1, 1, 0.92, 1, 0.82, 0.95),
+    heights = c(1, 1, 0.92, 1, 0.82, 1.02, 1),
     guides = "keep"
   ) +
   patchwork::plot_annotation(
     title = paste(
-      "Observed biological, hydrological and biogeochemical",
-      "proxies constrain redox-resilience architecture"
+      "Abiotic and biotic electron-routing memories constrain",
+      "redox-resilience trajectories"
     ),
     subtitle = paste(
       "Datasets operationalize buffering capacity, hydrological connectivity,",
       "kinetic asymmetry, microbial routing, root amplification, freeze-thaw",
-      "redox hysteresis, oxygen-memory denitrification, abiotic rewetting",
-      "chemistry and mineral electron-buffering architecture"
+      "redox hysteresis, abiotic rewetting chemistry, mineral electron buffering",
+      "and denitrifier pathway-memory restructuring"
     ),
     caption = source_caption,
     theme = ggplot2::theme(
@@ -1538,29 +1989,29 @@ fig_redox_resilience <- (
     )
   )
 
-# Save figure -------------------------------------------------------------
-
-dir.create(figure_out_dir, recursive = TRUE, showWarnings = FALSE)
+# ============================================================
+# Save full figure directly
+# ============================================================
 
 pdf_file <- file.path(
   figure_out_dir,
-  "fig_redox_resilience_nature_ready_plus_li2025.pdf"
+  "fig_redox_resilience_all_panels_A_to_N.pdf"
 )
 
 tiff_file <- file.path(
   figure_out_dir,
-  "fig_redox_resilience_nature_ready_plus_li2025_1200dpi.tiff"
+  "fig_redox_resilience_all_panels_A_to_N_1200dpi.tiff"
 )
 
 png_file <- file.path(
   figure_out_dir,
-  "fig_redox_resilience_nature_ready_plus_li2025_1200dpi.png"
+  "fig_redox_resilience_all_panels_A_to_N_1200dpi.png"
 )
 
 grDevices::cairo_pdf(
   filename = pdf_file,
   width = 16,
-  height = 20,
+  height = 23,
   onefile = TRUE
 )
 
@@ -1572,7 +2023,7 @@ ggplot2::ggsave(
   filename = tiff_file,
   plot = fig_redox_resilience,
   width = 16,
-  height = 17,
+  height = 23,
   units = "in",
   dpi = 1200,
   compression = "lzw",
@@ -1584,7 +2035,7 @@ ggplot2::ggsave(
   filename = png_file,
   plot = fig_redox_resilience,
   width = 16,
-  height = 17,
+  height = 23,
   units = "in",
   dpi = 1200,
   bg = "white",
@@ -1600,4 +2051,3 @@ message("Saved PDF: ", normalizePath(pdf_file))
 message("Saved TIFF: ", normalizePath(tiff_file))
 message("Saved PNG: ", normalizePath(png_file))
 message("Processed datasets saved to: ", normalizePath(data_out_dir))
-
