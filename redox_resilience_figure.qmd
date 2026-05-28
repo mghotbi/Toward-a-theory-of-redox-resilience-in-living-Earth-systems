@@ -15,8 +15,8 @@ execute:
 
 ```{r setup}
 knitr::opts_chunk$set(
-  fig.width = 11.6,
-  fig.height = 14,
+  fig.width = 12.6,
+  fig.height = 16,
   dpi = 1000
 )
 
