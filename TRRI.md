@@ -1,23 +1,4 @@
----
-title: "Toward Resilience"
-author: "Mitra Ghotbi"
-date: "2026-05-29"
-output:
-  html_document:
-    toc: true
-    toc_float: true
-    theme: flatly
-    code_folding: show
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  echo = T,
-  warning = FALSE,
-  message = FALSE,
-  fig.align = "center"
-)
-```
+ 
 
 ### The multi-panel figure and every processed dataset used in the figure as both CSV and RDS. Output file
 ### names start with the reference/source prefix used in the manuscript.
