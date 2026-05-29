@@ -303,7 +303,7 @@ p_capacity <- capacity_long |>
   ) +
   ggplot2::theme(legend.position = "none")
 
-
+p_capacity
 ```
 
 
@@ -378,11 +378,8 @@ p_connectivity <- fluxnet |>
   ) +
   ggplot2::theme(legend.position = "none")
 
-
+p_connectivity
 ``` 
-
-
-
 
 # Panel C: gas kinetic asymmetry 
 
