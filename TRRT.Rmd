@@ -1277,6 +1277,7 @@ p_dom_restructuring
 # Final assembly 
 
 ```{r}
+
 source_caption <- paste(
   "Data sources:",
   "A, Lacroix et al. 2022;",
@@ -1327,8 +1328,9 @@ fig_redox_resilience <- (
     )
   )
 
-fig_redox_resilience
+
 ```
+ 
  
 # Li et al. 2025 mechanistic panels
  
@@ -1741,7 +1743,7 @@ p_li_k <- li_k |>
   theme_redox()
 ``` 
 
-# Panel L (2)
+# Panel L x2
 ```{r}
 set.seed(123)
 
@@ -2004,21 +2006,21 @@ p_sennett_n
 ```
 
 # Mechanistic architecture
+
 # Abiotic memory:
 O2 hysteresis
 Eh recovery lag
 Electron buffering
-#
+
+
 # Biotic memory:
 Gene-expression hysteresis
 Denitrifier restructuring
 N2O pathway routing
-#
+ 
 Redox resilience is interpreted as distributed recovery of
 coupled abiotic and biotic electron-routing systems rather
 than restoration of a single equilibrium redox state.
-
- 
 # all panels A–N assambly
 
 ```{r}
