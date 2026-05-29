@@ -19,9 +19,8 @@ knitr::opts_chunk$set(
 )
 ```
 
-# The multi-panel figure and every
-# processed dataset used in the figure as both CSV and RDS. Output file
-# names start with the reference/source prefix used in the manuscript.
+### The multi-panel figure and every processed dataset used in the figure as both CSV and RDS. Output file
+### names start with the reference/source prefix used in the manuscript.
 
 # Packages  
 
