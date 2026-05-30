@@ -1,0 +1,10 @@
+stage,horizon,depth,value,error,metric
+Palsa,Organic horizon,2.7,0.03,0.01,Fe²⁺
+Palsa,Transition zone,10,0.02,0.01,Fe²⁺
+Palsa,Mineral horizon,16.5,0.02,0.01,Fe²⁺
+Bog,Organic horizon,1,0.14,0.005953685877646288,Fe²⁺
+Bog,Transition zone,7.5,0.8200000000000001,0.04740726140717746,Fe²⁺
+Bog,Mineral horizon,12.5,0.63,0.41494189347163785,Fe²⁺
+Fen,Organic horizon,1,0.8200000000000001,0.7080221051879313,Fe²⁺
+Fen,Transition zone,6.5,1.61,0.28355933998705124,Fe²⁺
+Fen,Mineral horizon,14.5,1.1800000000000002,0.4588382443804396,Fe²⁺

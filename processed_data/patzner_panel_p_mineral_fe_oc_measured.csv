@@ -1,0 +1,19 @@
+stage,horizon,value,error,metric
+Palsa,Organic horizon,0.09315000000000001,0.02484999999999996,Reactive Fe
+Palsa,Transition zone,1.7584,0.9623999999999999,Reactive Fe
+Palsa,Mineral horizon,18.984,7.903999999999994,Reactive Fe
+Bog,Organic horizon,0.8288000000000001,0.19,Reactive Fe
+Bog,Transition zone,13.416,0.09,Reactive Fe
+Bog,Mineral horizon,6.124799999999999,0.06999999999999999,Reactive Fe
+Fen,Organic horizon,1.7051999999999996,0.16,Reactive Fe
+Fen,Transition zone,15.602400000000001,0.23,Reactive Fe
+Fen,Mineral horizon,26.702999999999992,0.3969999999999988,Reactive Fe
+Palsa,Organic horizon,0.41850000000000004,0.17469999999999986,Fe-associated OC
+Palsa,Transition zone,13.358400000000001,3.4616000000000007,Fe-associated OC
+Palsa,Mineral horizon,172.07399999999998,58.261999999999986,Fe-associated OC
+Bog,Organic horizon,9.049600000000003,3.92,Fe-associated OC
+Bog,Transition zone,146.22150000000002,8.64,Fe-associated OC
+Bog,Mineral horizon,0,0,Fe-associated OC
+Fen,Organic horizon,0,0,Fe-associated OC
+Fen,Transition zone,0,0,Fe-associated OC
+Fen,Mineral horizon,0,0,Fe-associated OC
