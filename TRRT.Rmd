@@ -2373,6 +2373,7 @@ cascade_edges <- tibble::tribble(
 ```
 
 # Patzner data
+
 ```{r}
 
 save_dataset <- function(data, ...) {
@@ -2543,6 +2544,7 @@ save_dataset(
 ```
 
 # Panel o Patzner
+
 ```{r}
 p_patzner_o <- patzner_fe2 |>
   ggplot2::ggplot(
@@ -2578,6 +2580,7 @@ p_patzner_o
 ```
 
 # Panel p Patzner
+
 ```{r}
 p_patzner_p <- patzner_mineral_pool |>
   ggplot2::ggplot(
