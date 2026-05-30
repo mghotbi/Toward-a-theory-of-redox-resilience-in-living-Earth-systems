@@ -19,6 +19,45 @@ knitr::opts_chunk$set(
 )
 ```
 
+REDOX RESILIENCE ARCHITECTURE
+
+Redox resilience is defined as the capacity of soils and sediments to maintain, recover, and reorganize electron-routing processes following environmental perturbation. Rather than representing recovery toward a single equilibrium state, redox resilience emerges from interacting structural, biological, and temporal controls that govern the storage, transfer, and redistribution of electrons across biogeochemical pathways.
+
+Framework domains:
+
+A. Capacity
+Anaerobic organization aligns with buffering capacity. Carbon stocks, mineral-associated phases, surface area, and aggregate structure determine the magnitude of electron-buffering potential available within the system.
+
+B. Connectivity
+Hydrological connectivity regulates methane release. Water-table dynamics govern the physical coupling of redox microsites and control transport pathways for substrates, oxidants, and gaseous products.
+
+C. Kinetics
+Gas pulses reveal pathway-specific kinetic asymmetry. Carbon, nitrogen, and methane cycling pathways respond at different rates to perturbation, generating transient pulse dynamics and nonlinear recovery behavior.
+
+D. Microbial Routing
+Microbial mechanisms sustain anaerobic persistence. Functional guild composition, methanogenic activity, stress-tolerance traits, and carbon-routing strategies determine how electron flow is maintained across oxic–anoxic transitions.
+
+E. Root Control
+Root identity regulates biological electron-donor supply. Plant functional traits alter rhizosphere carbon inputs, priming intensity, and substrate availability, thereby influencing microbial electron-routing processes.
+
+G. Trajectory Organization
+Oxygen history stabilizes denitrification trajectories. Repeated environmental conditioning generates ecological memory that constrains future pathway activation and recovery trajectories.
+
+Mechanistic support panels:
+
+F. Freeze–thaw transitions impose directional redox shifts.
+This panel represents a perturbation forcing mechanism that drives rapid changes in redox potential and initiates resilience responses.
+
+H. Abiotic oxidation amplifies early rewetting CO₂ pulses.
+Abiotic oxidation pathways contribute substantially to transient carbon release immediately following rewetting events.
+
+I. Reactive oxygen species drive transient oxidative bursts after rewetting.
+Reactive oxygen species provide a mechanistic explanation for abiotic oxidation dynamics and associated pulse behavior.
+
+Synthesis:
+
+Redox resilience emerges from interactions among buffering capacity, hydrological connectivity, kinetic response asymmetry, microbial routing, root-mediated substrate supply, and trajectory organization. Environmental perturbations activate these controls, while abiotic oxidation and reactive oxygen species contribute important mechanistic pathways during recovery and reorganization.
+
  
 ```{r}
 library(tidyverse)
