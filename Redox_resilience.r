@@ -2635,4 +2635,18 @@ message("Processed data saved to: ", normalizePath(data_out_dir))
 # Redox resilience is interpreted as distributed recovery of
 # coupled abiotic and biotic electron-routing systems rather
 # than restoration of a single equilibrium redox state.
+source_caption <- paste(
+  "Data sources and transformations:",
+  "A, Lacroix et al. 2024, https://doi.org/10.1021/acs.est.4c01882;",
+  "B, Delwiche et al. 2021, https://doi.org/10.5194/essd-13-3607-2021;",
+  "C, Kim et al. 2012, dataset https://doi.org/10.3334/ORNLDAAC/1078 and paper https://doi.org/10.5194/bg-9-2459-2012;",
+  "D, Angle et al. 2017, https://doi.org/10.1038/s41467-017-01753-4;",
+  "E, Huo et al. 2017, https://doi.org/10.1016/j.soilbio.2017.04.003;",
+  "F, Liebmann et al. 2025, https://doi.org/10.1038/s43247-025-03143-x;",
+  "G and N, Sennett et al. 2024, https://doi.org/10.1038/s41467-024-51688-w;",
+  "H-J, Liu et al. 2025, https://doi.org/10.1038/s43247-025-02733-z;",
+  "K-M, Li et al. 2025, https://doi.org/10.1038/s41467-025-59637-x;",
+  "O-Q, Patzner et al. 2020, https://doi.org/10.1038/s41467-020-20102-6.",
+  "Panels A, C, F, G, I-J, N and Q include derived indices, scaled trajectories, summaries or fold changes."
+)
 
