@@ -148,8 +148,7 @@ A matched ` .csv` + `.rds` pair to `figure_exports/processed_data/`, e.g. `lacro
 | Format | Use |
 |:---|:---|
 | `.pdf` | Vector, Cairo PDF device  |
-| `.tiff` | 1200 dpi, LZW compression  |
-| `.png` | 300 dpi — quick preview  |
+
 
 > If a PDF doesn't render in-browser, use the PNG, or download and open locally — large multi-panel Cairo PDFs can exceed GitHub's in-browser viewer limits.
 
