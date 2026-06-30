@@ -103,7 +103,9 @@ Liebmann, P. et al. Perennial redox potential dynamics in Alaskan degraded and n
 </sup>
 
 
+
 > Lacroix et al. and Li et al. each appear twice — the same dataset supports two properties (Lacroix: Capacity in A, Kinetics in G; Li: Capacity in B, Recovery trajectory in K). Sennett et al. supports both Memory panels (H, I) from one study.
+
 
 </details>
 
@@ -118,7 +120,7 @@ Liebmann, P. et al. Perennial redox potential dynamics in Alaskan degraded and n
 | `global_rtsg_flux_v1.csv` | F | 1–5 MB | Global rewetting/thawing CO₂, CH₄, N₂O flux synthesis |
 | `fluxnet_ch4_water_table.csv` | D | 5–10 MB | Daily wetland CH₄ flux & water-table depth (FLUXNET-CH4) |
 | `angle_2017_methanogenesis.csv` | E | <1 MB | Methanogenic activity, oxygenated wetland soils |
-| `luh_ifbk.ID_6637_FTC_DATASET.csv` | J | 1–5 MB | Continuous Eh electrode record, freeze–thaw cycles |
+| `luh.ID_6637_FTC_DATASET.csv` | J | 1–5 MB | Continuous Eh electrode record, freeze–thaw cycles |
 | `p9.csv` | H | <1 MB | N₂ trajectory raw replicates by O₂ pre-treatment |
 | `geneden.xlsx` | I | <1 MB | Denitrification gene / metatranscriptome counts |
 | `Li 2025 Ncom.xlsx` | B, K | 1–5 MB | Fe plaque, O₂, P, redox-dynamics time series |
