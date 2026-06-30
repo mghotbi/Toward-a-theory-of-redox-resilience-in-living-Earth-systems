@@ -143,7 +143,7 @@ A matched ` .csv` + `.rds` pair to `figure_exports/processed_data/`, e.g. `lacro
 
 ## Figure outputs
 
-`github_ready_figure_exports/figures/` contains, for both the main and extended-data figures:
+`figures/` contains, the main figures:
 
 | Format | Use |
 |:---|:---|
