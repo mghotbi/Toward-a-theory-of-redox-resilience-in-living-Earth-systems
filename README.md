@@ -11,7 +11,6 @@ Ghotbi, M. · Kolody, B. C. · Ghotbi, M. · Holtgrewe-Stukenbrock, E.
 [![ORCID](https://img.shields.io/badge/ORCID-0000--0001--9185--9993-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0001-9185-9993)
 
 </div>
-
 ---
 
 This repository reproduces **Figure 5** (main text) and **Supplementary Figure 1** (extended data) end to end — from raw third-party datasets, through processed intermediates, to publication-ready figure files.
@@ -53,7 +52,6 @@ Open `Redox_resilience_figure_script.R`, point `data_dir` at your local copy of 
 │   └── figures/                         PDF · TIFF (1200 dpi) · PNG
 └── README.md
 ```
-
 <br>
 
 ## The six properties
