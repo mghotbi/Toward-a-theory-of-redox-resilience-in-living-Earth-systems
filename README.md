@@ -1,15 +1,92 @@
 # Toward a theory of redox resilience in living Earth systems
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![R](https://img.shields.io/badge/R-reproducible%20workflow-276DC3.svg)](https://www.r-project.org/)
-[![Quarto](https://img.shields.io/badge/Quarto-reproducibility-39729E.svg)](https://quarto.org/)
+Code, processed datasets and figure-generation scripts supporting:
 
+> Ghotbi, M., Kolody, B. C., Ghotbi, M. & Holtgrewe-Stukenbrock, E.
+> *Hydroclimatic redox resilience is the capacity of living Earth systems to
+> recover distributed electron-transfer architecture following perturbation.*
 
-This repository contains the reproducible figure workflow, processed datasets, and publication-ready outputs associated with the manuscript:
- 
-# Toward a theory of redox resilience in living Earth systems
+This repository accompanies Figure 5 (main text) and Supplementary Figure 1
+(extended data), reproducing every panel from raw or lightly processed
+public datasets.
 
- 
+## Repository structure
+
+```
+.
+├── Redox_resilience_figure_script.R   # full panel + figure assembly script
+├── data/                              # raw input files (see Table 1 below)
+├── github_ready_figure_exports/
+│   ├── processed_data/                # one CSV + RDS per panel, see Table 2
+│   └── figures/                       # PDF / TIFF (1200 dpi) / PNG exports
+└── README.md
+```
+
+Running `Redox_resilience_figure_script.R` end to end regenerates every
+processed dataset and both figures (`fig_MAIN_10panels_...` /
+`fig_EXTENDED_DATA_...`) from the raw files in `data/`. Edit the `data_dir`
+path at the top of the script to point at a local copy of the `data/`
+folder before running.
+
+## Table 1 | Raw input datasets
+
+| File | Type | Approx. size | Original source | Conditions / notes |
+|---|---|---|---|---|
+| `fig4_panel_a_lacroix_capacity_axis.csv` | CSV, tabular | <1 MB | Lacroix et al. 2025, *Soil Biol. Biochem.* 211, doi:10.1016/j.soilbio.2025.109974 | Agricultural soils; PLFA, Fe-mineral, organic-C and structural proxies underlying the anaerobic functional capacity axis (Panel A) |
+| `global_rtsg_flux_v1.csv` | CSV, tabular | ~1–5 MB | Kim et al. 2012, *Biogeosciences* 9, doi:10.5194/bg-9-2459-2012 (dataset: ORNL DAAC doi:10.3334/ORNLDAAC/1078) | Global rewetting/thawing soil gas flux compilation; CO₂, CH₄, N₂O response ratios (Panel F) |
+| `fluxnet_ch4_water_table.csv` / `FLX_US-MAC_FLUXNET-CH4_DD_2013-2015_1-1.csv` | CSV, daily time series | ~5–10 MB | FLUXNET-CH4 / Delwiche et al. 2021, *Earth Syst. Sci. Data* 13, doi:10.5194/essd-13-3607-2021 | Daily wetland CH₄ flux and water-table depth; public FLUXNET-CH4 release, US-MAC site shown as fallback (Panel D/B) |
+| `RPE_data_version20240522.csv` / `root_priming_effects_meta_analysis.csv` | CSV, meta-analysis compilation | <1 MB | Huo et al. 2017, *Soil Biol. Biochem.* 113, doi:10.1016/j.soilbio.2017.04.003 | Root priming effect meta-analysis dataset; root-identity donor-supply comparisons (Panel E) |
+| `luh_ifbk.ID_6637_FTC_DATASET.csv` | CSV, electrode time series | ~1–5 MB | Liebmann et al. 2025, *Commun. Earth Environ.* 7, 120, doi:10.1038/s43247-025-03143-x | Continuous redox-electrode (Eh) measurements through freeze–thaw cycles, Alaskan permafrost soils (Panel F/J) |
+| `p9.csv` | CSV, raw plate/replicate data | <1 MB | Sennett et al. 2024, *Nat. Commun.* 15, doi:10.1038/s41467-024-51688-w | N₂ trajectory raw replicate block used to reconstruct oxygen-memory denitrification kinetics (Panel G) |
+| `geneden.xlsx` / `geneden.xls` / `geneden.csv` | Spreadsheet, gene-count table | <1 MB | Sennett et al. 2024, *Nat. Commun.* 15, doi:10.1038/s41467-024-51688-w | Denitrification gene-pathway read counts by treatment and time (Panel N) |
+| `Li 2025 Ncom.xlsx` / `li 2025 rythmic.xlsx` | Spreadsheet, multi-sheet workbook | 1–5 MB | Li et al. 2025, *Nat. Commun.* 16, doi:10.1038/s41467-025-59637-x | Rice rhizosphere O₂, Eh, pH time series and electron-exchange capacity (EEC) by compartment (Panels K, L, M) |
+| `Main text_1) Porewater analysis.xlsx` | Spreadsheet | <1 MB | Patzner et al. 2020, *Nat. Commun.* 11, doi:10.1038/s41467-020-20102-6 | Permafrost porewater Fe²⁺ concentrations across thaw-gradient stages (Palsa → Bog → Fen) (Panel O) |
+| `Main text_2) Most Probable Numbers.xlsx` | Spreadsheet | <1 MB | Patzner et al. 2020, *Nat. Commun.* 11, doi:10.1038/s41467-020-20102-6 | Fe-reducer most-probable-number counts across the same thaw gradient (Panel Q) |
+| `SI_6) Stock of reactive Fe and associated OC.xlsx` | Spreadsheet | <1 MB | Patzner et al. 2020, *Nat. Commun.* 11, doi:10.1038/s41467-020-20102-6 | Reactive Fe and Fe-associated organic carbon stocks by soil horizon (Panel C/P) |
+
+All raw files are third-party research data, redistributed here only as the
+specific extracts used to generate figure panels, under the terms of the
+original publishers' data-sharing licenses; please cite the original papers
+above (not this repository) when reusing the underlying measurements.
+
+## Table 2 | Processed datasets (generated by the script)
+
+Every panel writes a matched `<source>_<panel>.csv` and `<source>_<panel>.rds`
+pair to `github_ready_figure_exports/processed_data/`, for example:
+
+| Output file | Panel | Content |
+|---|---|---|
+| `lacroix_2022_panel_a_capacity_axis.csv` | A | Long-format capacity-axis covariates |
+| `delwiche_2021_fluxnet_ch4_panel_b_connectivity.csv` | B | Cleaned daily CH₄ flux / water-table series |
+| `kim_2012_rtsg_panel_c_gas_kinetics.csv` | C | Log response ratios by gas with Wilcoxon test stats |
+| `angle_2017_panel_d_microbial_routing.csv` | D | mcrA evidence-support summary table |
+| `huo_2017_panel_e_root_priming.csv` / `panel_e_root_summary.csv` | E | Root-group donor-supply summaries |
+| `liebmann_freeze_thaw_panel_f_redox_shift.csv` | F | Per-replicate ΔEh freeze/thaw transitions |
+| `sennett_2024_panel_g_oxygen_memory_n2.csv` | G | N₂ trajectory data by oxygen pre-treatment |
+| `liu_2025_panel_h_co2_efflux.csv` | H | CO₂ efflux time series, original/TBA/sterilized soils |
+| `liu_2025_panel_i_ros_raw.csv` / `panel_i_ros_indexed.csv` | I | ROS (H₂O₂, •OH) burst raw and indexed values |
+| `liu_2025_panel_j_dom_metrics_indexed.csv` / `panel_j_dom_oxidative_effects.csv` | J | DOM oxidative-restructuring indices |
+| `li2025_panel_k_o2_eh_ph.csv` | K | Coupled O₂–Eh–pH recovery time series |
+| `li2025_panel_l_eec_reported.csv` / `panel_l_eec_reconstructed.csv` | L | Electron exchange capacity by compartment |
+| `li2025_panel_m_fe_p.csv` | M | Reactive Fe–phosphorus mineral pools |
+| `sennett2024_panel_n_gene_raw.csv` / `panel_n_pathway_summary.csv` | N | Denitrification gene-pathway abundance |
+| `patzner_panel_o_fe2_measured.csv` | O | Porewater Fe²⁺ by thaw stage |
+| `patzner_panel_p_mineral_fe_oc_measured.csv` | P | Mineral Fe–OC pools by stage |
+| `patzner_panel_q_fe_reducers_measured.csv` / `panel_q_fen_palsa_fold_change.csv` | Q | Fe-reducer abundance and fold-change cascade |
+
+## Figure outputs
+
+`github_ready_figure_exports/figures/` contains, for both the main figure
+and the extended-data figure:
+
+- `*.pdf` — vector, Cairo PDF device (publication-ready)
+- `*.tiff` — 1200 dpi, LZW compression (journal submission)
+- `*.png` — 300 dpi (preview / repository rendering)
+
+If the PDF does not render in your browser or in GitHub's file preview, use
+the PNG for a quick look, or download and open the PDF locally — large
+multi-panel Cairo PDFs sometimes exceed GitHub's in-browser PDF viewer size
+or rendering limits.
 
 ## Citation
 
@@ -19,31 +96,3 @@ manuscript above and the original data sources listed in Table 1.
 ## Contact
 
 Mitra Ghotbi — mitra.ghotbi@gmail.com — ORCID: 0000-0001-9185-9993
-
-## Reproducing the figure
-
-Run in R:
-
-```r
-source("figure_redox_resilience.r")
-
-```
- 
----
-
- 
-Render the Quarto document:
-
-```bash
-quarto render redox_resilience_figure.qmd
-```
-
----
- 
-# Citation
-
-Please cite the associated manuscript when using this repository:
-
-> Ghotbi, M. et al. *Toward a theory of redox resilience in living Earth systems.*
-
- 
