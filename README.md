@@ -73,7 +73,7 @@ Each panel in Figure 5 provides empirical evidence for one of six properties of 
 ## Datasets
 
 <details open>
-<summary><b>Table 1 — Sources used in this review</b> (mirrors manuscript Table S1)</summary>
+<summary><b>Table 1 — Sources used in this review</b> </summary>
 <br>
 
 | Panel | Property | Source | Ecosystem | Insight |
