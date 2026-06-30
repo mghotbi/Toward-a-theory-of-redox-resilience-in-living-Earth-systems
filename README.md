@@ -134,7 +134,7 @@ All raw files are third-party research data, included here only as the specific 
 <summary><b>Table 3 — Processed outputs</b></summary>
 <br>
 
-Every panel writes a matched `<source>_<panel>.csv` + `.rds` pair to `github_ready_figure_exports/processed_data/`, e.g. `lacroix_2025_panel_a_capacity_axis.csv`, `li_2025_panel_k_recovery_trajectory.csv`.
+Every panel writes a matched ` .csv` + `.rds` pair to `figure_exports/processed_data/`, e.g. `lacroix_2025_panel_a_capacity_axis.csv`, `li_2025_panel_k_recovery_trajectory.csv`.
 
 </details>
 
@@ -146,9 +146,9 @@ Every panel writes a matched `<source>_<panel>.csv` + `.rds` pair to `github_rea
 
 | Format | Use |
 |:---|:---|
-| `.pdf` | Vector, Cairo PDF device — publication-ready |
-| `.tiff` | 1200 dpi, LZW compression — journal submission |
-| `.png` | 300 dpi — quick preview, repository rendering |
+| `.pdf` | Vector, Cairo PDF device  |
+| `.tiff` | 1200 dpi, LZW compression  |
+| `.png` | 300 dpi — quick preview  |
 
 > If a PDF doesn't render in-browser, use the PNG, or download and open locally — large multi-panel Cairo PDFs can exceed GitHub's in-browser viewer limits.
 
