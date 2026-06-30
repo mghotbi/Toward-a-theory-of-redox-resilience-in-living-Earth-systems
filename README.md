@@ -104,6 +104,7 @@ Sennett, L. B. et al. Determining how oxygen legacy affects trajectories of soil
 Liebmann, P. et al. Perennial redox potential dynamics in Alaskan degraded and non-degraded permafrost soils. <i>Commun. Earth Environ.</i> <b>7</b>, 120 (2025). doi:10.1038/s43247-025-03143-x
 </sup>
 
+
 > Lacroix et al. and Li et al. each appear twice — the same dataset supports two properties (Lacroix: Capacity in A, Kinetics in G; Li: Capacity in B, Recovery trajectory in K). Sennett et al. supports both Memory panels (H, I) from one study.
 
 </details>
