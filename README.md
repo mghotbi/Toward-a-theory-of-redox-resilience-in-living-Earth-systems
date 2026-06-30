@@ -135,7 +135,7 @@ All raw files are third-party research data, included here only as the specific 
 <summary><b>Table 3 — Processed outputs</b></summary>
 <br>
 
-Every panel writes a matched ` .csv` + `.rds` pair to `figure_exports/processed_data/`, e.g. `lacroix_2025_panel_a_capacity_axis.csv`, `li_2025_panel_k_recovery_trajectory.csv`.
+A matched ` .csv` + `.rds` pair to `figure_exports/processed_data/`, e.g. `lacroix_2025_panel_a_capacity_axis.csv`, `li_2025_panel_k_recovery_trajectory.csv`.
 
 </details>
 
