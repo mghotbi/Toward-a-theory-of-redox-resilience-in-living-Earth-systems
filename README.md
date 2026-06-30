@@ -89,7 +89,7 @@ Each panel in Figure 5 provides empirical evidence for one of six properties of 
 | K | Recovery trajectory | Li et al. 2025 | Rice rhizosphere | Rhythmic O₂ release generates asynchronous physicochemical recovery |
 | L | Recovery trajectory | Patzner et al. 2020 (synthesis) | Permafrost thaw | Recovery reconstructs electron-routing architecture, not a prior state |
 
-**Full references**
+**References**
 
 <sup>
 Lacroix, E. M. et al. Root exudation and fine texture interact to form anoxic microsites in rhizosphere soil. <i>Soil Biol. Biochem.</i> <b>211</b> (2025). doi:10.1016/j.soilbio.2025.109974<br>
