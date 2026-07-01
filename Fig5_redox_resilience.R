@@ -1,16 +1,13 @@
 # ============================================================
-# ============================================================
-# Redox resilience architecture figure
-# GitHub-ready script for paper figure and processed datasets
-# Author: Mitra Ghotbi May 2026
-# ============================================================
+# Fig5_redox_resilience.R
+# Ghotbi et al. 2026
+#
+# Complete self-contained script.
+# Edit data_dir (line 20) and p9_file (line 21) then run
+# top to bottom to produce Fig. 5 as PDF / TIFF / PNG.
 # ============================================================
 
-# The multi-panel figure and every
-# processed dataset used in the figure as both CSV and RDS. Output file
-# names start with the reference/source prefix used in the manuscript.
-
-# Packages ----------------------------------------------------------------
+# 1. Packages -------------------------------------------------------------
 
 library(tidyverse)
 library(janitor)
@@ -20,23 +17,20 @@ library(ggrepel)
 library(patchwork)
 library(scales)
 library(readr)
+library(readxl)
+library(grid)
 
-# Paths -------------------------------------------------------------------
+# 2. Paths ----------------------------------------------------------------
 
-# Please edit these two paths if you move the repository.
 data_dir <- "/Users/mitraghotbi/Library/CloudStorage/GoogleDrive-mitra.ghotbi@gmail.com/My Drive/Review on Redox Resilience MG 2026 Jan/NGEO2026/data"
-p9_file <- "/Users/mitraghotbi/Desktop/p9.csv"
+p9_file  <- "/Users/mitraghotbi/Desktop/p9.csv"
 
-out_dir <- file.path(data_dir, "github_ready_figure_exports")
-data_out_dir <- file.path(out_dir, "processed_data")
-figure_out_dir <- file.path(out_dir, "figures")
+figure_out_dir <- file.path(data_dir, "github_ready_figure_exports", "figures")
+data_out_dir   <- file.path(data_dir, "github_ready_figure_exports", "processed_data")
+purrr::walk(c(figure_out_dir, data_out_dir),
+            ~ dir.create(.x, recursive = TRUE, showWarnings = FALSE))
 
-purrr::walk(
-  c(out_dir, data_out_dir, figure_out_dir),
-  ~ dir.create(.x, recursive = TRUE, showWarnings = FALSE)
-)
-
-# Helpers -----------------------------------------------------------------
+# 3. Helpers --------------------------------------------------------------
 
 find_file <- function(paths) {
   existing <- paths[file.exists(paths)]
@@ -63,6 +57,11 @@ save_dataset <- function(data, prefix, name) {
   
   invisible(data)
 }
+
+
+num <- function(x) readr::parse_number(as.character(x))
+
+# 4. Theme and colours ----------------------------------------------------
 
 theme_redox <- function(base_size = 8) {
   ggplot2::theme_minimal(base_size = base_size, base_family = "Helvetica") +
@@ -173,6 +172,38 @@ soil_linetypes <- c(
 
 # Raw data import ---------------------------------------------------------
 
+li_cols <- c(
+  "Oxygen" = "#C62828",
+  "Redox potential" = "#1565C0",
+  "pH" = "#2E7D32"
+)
+
+eec_cols <- c(
+  "Bulk soil" = "#FFCC80",
+  "Rhizosphere" = "#FF7043",
+  "Iron plaque" = "#8E0000"
+)
+
+fe_cols <- c(
+  "Reactive Fe" = "#8E0000",
+  "P-associated pool" = "#FF8F00"
+)
+
+gene_cols <- c(
+  "Nitrate reduction" = "#6A1B9A",
+  "Nitrite reduction" = "#C62828",
+  "NO reduction" = "#EF6C00",
+  "N₂O reduction" = "#1565C0"
+)
+
+# ============================================================
+# Li et al. 2025 — abiotic memory
+# ============================================================
+
+
+
+# 5. Raw data import ------------------------------------------------------
+
 capacity_file <- find_file(c(
   file.path(
     data_dir,
@@ -217,6 +248,10 @@ ftc <- readr::read_csv(ftc_file, show_col_types = FALSE) |>
   janitor::clean_names()
 
 # Panel A: buffering architecture ----------------------------------------
+
+
+# ── Panel A: CAPACITY — soil buffering architecture ──────────────────────
+# Source: Lacroix et al. 2025, Soil Biol. Biochem.
 
 capacity_long <- capacity_data |>
   dplyr::select(
@@ -273,6 +308,10 @@ p_capacity <- capacity_long |>
   ggplot2::theme(legend.position = "none")
 
 # Panel B: hydrological connectivity -------------------------------------
+
+
+# ── Panel B: CONNECTIVITY — hydrological control of CH4 ─────────────────
+# Source: Delwiche et al. 2021, FLUXNET-CH4
 
 fluxnet <- fluxnet_raw |>
   dplyr::mutate(
@@ -343,6 +382,10 @@ p_connectivity <- fluxnet |>
   ggplot2::theme(legend.position = "none")
 
 # Panel C: gas kinetic asymmetry -----------------------------------------
+
+
+# ── Panel C: KINETICS — greenhouse-gas pulse asymmetry ──────────────────
+# Source: Kim et al. 2012, Biogeosciences
 
 rtsg_clean <- rtsg |>
   dplyr::mutate(
@@ -450,6 +493,10 @@ p_kinetics <- rtsg_clean |>
 
 # Panel D: microbial routing ---------------------------------------------
 
+
+# ── Panel D: CONNECTIVITY — microbial routing access ────────────────────
+# Source: Angle et al. 2017, Nat. Commun.
+
 angle_support_tbl <- tibble::tibble(
   evidence = factor(
     c(
@@ -517,6 +564,11 @@ p_microbes <- angle_support_tbl |>
   )
 
 # Panel E: root control ---------------------------------------------------
+
+
+# ── Panel E: KINETICS — rhizosphere electron-donor supply ───────────────
+# Source: Lacroix et al. 2025, Soil Biol. Biochem.
+# (p_root built here; used internally, not in final assembly)
 
 rpe_clean <- rpe |>
   dplyr::transmute(
@@ -607,6 +659,10 @@ p_root <- root_summary |>
 
 # Panel F: freeze-thaw redox shift ---------------------------------------
 
+
+# ── Panel F: HYSTERESIS — freeze-thaw redox shift ───────────────────────
+# Source: Liebmann et al. 2025, Commun. Earth Environ.
+
 ftc_long <- ftc |>
   dplyr::select(
     time = experiment1_time,
@@ -633,7 +689,7 @@ ftc_long <- ftc |>
   ) |>
   tidyr::fill(phase, .direction = "downup") |>
   dplyr::mutate(
-    run_id = cumsum(phase != dplyr::lag(phase, default = first(phase)))
+    run_id = cumsum(phase != dplyr::lag(phase, default = dplyr::first(phase)))
   ) |>
   dplyr::ungroup() |>
   dplyr::filter(!is.na(phase))
@@ -686,6 +742,10 @@ p_ftc <- ftc_transition |>
   )
 
 # Panel G: oxygen-memory N2 trajectories ---------------------------------
+
+
+# ── Panel G: MEMORY — oxygen-history N2 trajectories ────────────────────
+# Source: Sennett et al. 2024, Nat. Commun.
 
 raw_lines <- readr::read_lines(p9_file)
 
@@ -851,6 +911,10 @@ p_sennett <- trajectory_data |>
 
 # Panel H: Liu CO2 rewetting kinetics ------------------------------------
 
+
+# ── Panel H: KINETICS — early CO2 rewetting response ────────────────────
+# Source: Liu et al. 2025, Commun. Earth Environ.
+
 co2_efflux <- tibble::tribble(
   ~soil, ~time, ~treatment, ~value, ~error,
   "Sandy soil", 0.5, "Original soil", 4.01, 0.25,
@@ -944,670 +1008,23 @@ p_co2_efflux <- co2_efflux |>
 ros_liu <- tibble::tribble(
   ~soil, ~time, ~metric, ~value, ~error,
   "Sandy soil", 0, "H2O2", 483.88, 56.64,
-  "Sandy soil", 0.5, "H2O2", 609.71, 17.85,
-  "Sandy soil", 1, "H2O2", 767.16, 92.27,
-  "Sandy soil", 3, "H2O2", 760.63, 131.09,
-  "Sandy soil", 6, "H2O2", 564.88, 135.39,
-  "Sandy soil", 9, "H2O2", 419.37, 50.71,
-  "Sandy soil", 12, "H2O2", 469.98, 94.23,
-  "Sandy soil", 24, "H2O2", 467.89, 110.99,
-  "Sandy soil", 48, "H2O2", 485.26, 52.16,
-  "Paddy soil", 0, "H2O2", 502.54, 45.25,
-  "Paddy soil", 0.5, "H2O2", 1094.68, 52.48,
-  "Paddy soil", 1, "H2O2", 850.00, 119.74,
-  "Paddy soil", 3, "H2O2", 792.37, 111.71,
-  "Paddy soil", 6, "H2O2", 844.10, 12.44,
-  "Paddy soil", 9, "H2O2", 790.53, 65.43,
-  "Paddy soil", 12, "H2O2", 914.67, 114.02,
-  "Paddy soil", 24, "H2O2", 795.05, 138.18,
-  "Paddy soil", 48, "H2O2", 685.21, 85.25,
-  "Sandy soil", 0, "OH radical", 1.62, 0.13,
-  "Sandy soil", 0.25, "OH radical", 5.13, 0.27,
-  "Sandy soil", 0.5, "OH radical", 5.08, 0.69,
-  "Sandy soil", 1, "OH radical", 4.67, 0.27,
-  "Sandy soil", 3, "OH radical", 4.57, 0.28,
-  "Sandy soil", 6, "OH radical", 3.68, 0.25,
-  "Sandy soil", 9, "OH radical", 3.21, 0.23,
-  "Sandy soil", 12, "OH radical", 3.19, 0.05,
-  "Sandy soil", 24, "OH radical", 2.68, 0.43,
-  "Sandy soil", 48, "OH radical", 2.45, 0.36,
-  "Paddy soil", 0, "OH radical", 4.27, 0.42,
-  "Paddy soil", 0.25, "OH radical", 5.21, 0.52,
-  "Paddy soil", 0.5, "OH radical", 5.98, 0.57,
-  "Paddy soil", 1, "OH radical", 5.95, 0.41,
-  "Paddy soil", 3, "OH radical", 6.45, 0.37,
-  "Paddy soil", 6, "OH radical", 5.49, 0.12,
-  "Paddy soil", 9, "OH radical", 5.70, 0.28,
-  "Paddy soil", 12, "OH radical", 5.35, 0.11,
-  "Paddy soil", 24, "OH radical", 5.02, 0.23,
-  "Paddy soil", 48, "OH radical", 4.69, 0.39
-)
 
-ros_index <- ros_liu |>
-  dplyr::group_by(soil, metric) |>
-  dplyr::mutate(
-    baseline = dplyr::first(value),
-    index = value / baseline
-  ) |>
-  dplyr::ungroup() |>
-  dplyr::mutate(
-    metric = factor(metric, levels = c("H2O2", "OH radical")),
-    soil = factor(soil, levels = c("Sandy soil", "Paddy soil"))
-  )
+# ── Li et al. 2025 data import ───────────────────────────────────────────
+# Source: Li et al. 2025, Nat. Commun.
 
-save_dataset(ros_liu, "liu_2025", "panel_i_ros_raw")
-save_dataset(ros_index, "liu_2025", "panel_i_ros_indexed")
-
-p_ros_liu_compact <- ros_index |>
-  ggplot2::ggplot(
-    ggplot2::aes(
-      x = time,
-      y = index,
-      fill = metric,
-      colour = metric,
-      linetype = soil,
-      group = interaction(metric, soil)
-    )
-  ) +
-  ggplot2::geom_area(alpha = 0.24, position = "identity") +
-  ggplot2::geom_line(linewidth = 1.05) +
-  ggplot2::geom_point(
-    ggplot2::aes(fill = metric),
-    size = 1.9,
-    shape = 21,
-    colour = "white",
-    stroke = 0.25
-  ) +
-  ggplot2::geom_hline(
-    yintercept = 1,
-    linewidth = 0.32,
-    linetype = "dashed",
-    colour = "grey45"
-  ) +
-  ggplot2::scale_fill_manual(values = ros_fill_cols) +
-  ggplot2::scale_colour_manual(values = ros_line_cols) +
-  ggplot2::scale_linetype_manual(values = soil_linetypes) +
-  ggplot2::labs(
-    title = "I  Rewetting induces transient oxidative bursts",
-    subtitle = expression(
-      H[2] * O[2] * " and " * "\u2022" * OH *
-        " trajectories indexed relative to initial state"
-    ),
-    x = "Time after rewetting (h)",
-    y = "ROS index, initial = 1",
-    fill = NULL,
-    colour = NULL,
-    linetype = NULL
-  ) +
-  ggplot2::theme(
-    legend.position = "top",
-    legend.box = "horizontal",
-    legend.key.width = grid::unit(1.05, "cm")
-  )
-
-# Panel J: Liu DOM oxidative restructuring -------------------------------
-
-dom_metrics <- tibble::tribble(
-  ~soil, ~treatment, ~metric, ~value, ~error,
-  "Sandy soil", "Original", "DOC", 205.46, 1.14,
-  "Sandy soil", "Rewetting", "DOC", 177.86, 0.47,
-  "Sandy soil", "Sterilized", "DOC", 211.76, 0.40,
-  "Sandy soil", "Sterilized rewetting", "DOC", 185.92, 1.76,
-  "Sandy soil", "OH-treated", "DOC", 150.82, 0.68,
-  "Paddy soil", "Original", "DOC", 335.44, 6.16,
-  "Paddy soil", "Rewetting", "DOC", 188.72, 2.48,
-  "Paddy soil", "Sterilized", "DOC", 344.53, 3.04,
-  "Paddy soil", "Sterilized rewetting", "DOC", 337.87, 5.52,
-  "Paddy soil", "OH-treated", "DOC", 272.72, 1.68,
-  "Sandy soil", "Original", "SUVA254", 3.59, 0.02,
-  "Sandy soil", "Rewetting", "SUVA254", 5.62, 0.02,
-  "Sandy soil", "Sterilized", "SUVA254", 3.26, 0.01,
-  "Sandy soil", "Sterilized rewetting", "SUVA254", 4.32, 0.03,
-  "Sandy soil", "OH-treated", "SUVA254", 20.05, 0.29,
-  "Paddy soil", "Original", "SUVA254", 2.30, 0.04,
-  "Paddy soil", "Rewetting", "SUVA254", 3.46, 0.04,
-  "Paddy soil", "Sterilized", "SUVA254", 1.51, 0.01,
-  "Paddy soil", "Sterilized rewetting", "SUVA254", 2.19, 0.03,
-  "Paddy soil", "OH-treated", "SUVA254", 11.02, 0.14,
-  "Sandy soil", "Original", "E2/E3", 5.11, 0.08,
-  "Sandy soil", "Rewetting", "E2/E3", 4.62, 0.11,
-  "Sandy soil", "Sterilized", "E2/E3", 4.63, 0.09,
-  "Sandy soil", "Sterilized rewetting", "E2/E3", 4.50, 0.05,
-  "Sandy soil", "OH-treated", "E2/E3", 3.94, 0.18,
-  "Paddy soil", "Original", "E2/E3", 7.10, 0.06,
-  "Paddy soil", "Rewetting", "E2/E3", 4.92, 0.17,
-  "Paddy soil", "Sterilized", "E2/E3", 5.36, 0.59,
-  "Paddy soil", "Sterilized rewetting", "E2/E3", 5.37, 0.23,
-  "Paddy soil", "OH-treated", "E2/E3", 5.05, 0.21
-) |>
-  dplyr::mutate(
-    soil = factor(soil, levels = c("Sandy soil", "Paddy soil")),
-    treatment = factor(
-      treatment,
-      levels = c(
-        "Original",
-        "Rewetting",
-        "Sterilized",
-        "Sterilized rewetting",
-        "OH-treated"
-      )
-    )
-  ) |>
-  dplyr::group_by(soil, metric) |>
-  dplyr::mutate(
-    original_value = value[treatment == "Original"][1],
-    response_index = value / original_value
-  ) |>
-  dplyr::ungroup()
-
-dom_contrast <- dom_metrics |>
-  dplyr::filter(treatment %in% c("Rewetting", "OH-treated")) |>
-  dplyr::mutate(
-    effect = dplyr::case_when(
-      metric == "DOC" ~ 1 - response_index,
-      metric == "SUVA254" ~ response_index - 1,
-      metric == "E2/E3" ~ 1 - response_index,
-      TRUE ~ NA_real_
-    ),
-    mechanism = dplyr::case_when(
-      metric == "DOC" ~ "DOC depletion",
-      metric == "SUVA254" ~ "Aromatic enrichment",
-      metric == "E2/E3" ~ "Molecular restructuring",
-      TRUE ~ NA_character_
-    ),
-    mechanism = factor(
-      mechanism,
-      levels = rev(c(
-        "DOC depletion",
-        "Aromatic enrichment",
-        "Molecular restructuring"
-      ))
-    ),
-    treatment = factor(treatment, levels = c("Rewetting", "OH-treated")),
-    label = sprintf("%.2f", effect)
-  ) |>
-  dplyr::filter(!is.na(effect))
-
-save_dataset(dom_metrics, "liu_2025", "panel_j_dom_metrics_indexed")
-save_dataset(dom_contrast, "liu_2025", "panel_j_dom_oxidative_effects")
-
-p_dom_restructuring <- dom_contrast |>
-  ggplot2::ggplot(
-    ggplot2::aes(
-      x = effect,
-      y = mechanism,
-      colour = soil
-    )
-  ) +
-  ggplot2::geom_vline(
-    xintercept = 0,
-    linewidth = 0.3,
-    linetype = "dashed",
-    colour = "grey70"
-  ) +
-  ggplot2::geom_segment(
-    ggplot2::aes(
-      x = 0,
-      xend = effect,
-      yend = mechanism
-    ),
-    linewidth = 1.05,
-    alpha = 0.48,
-    lineend = "round",
-    position = ggplot2::position_dodge(width = 0.46)
-  ) +
-  ggplot2::geom_point(
-    ggplot2::aes(shape = treatment),
-    size = 3.8,
-    stroke = 0.45,
-    position = ggplot2::position_dodge(width = 0.46)
-  ) +
-  ggrepel::geom_text_repel(
-    ggplot2::aes(label = label),
-    size = 2.25,
-    colour = "grey20",
-    box.padding = 0.15,
-    point.padding = 0.12,
-    min.segment.length = 0,
-    segment.alpha = 0.25,
-    show.legend = FALSE,
-    max.overlaps = 20
-  ) +
-  ggplot2::scale_colour_manual(values = soil_cols) +
-  ggplot2::scale_shape_manual(
-    values = c(
-      "Rewetting" = 16,
-      "OH-treated" = 17
-    )
-  ) +
-  ggplot2::coord_cartesian(xlim = c(-0.08, 4.8), clip = "off") +
-  ggplot2::labs(
-    title = "J  DOM chemistry shifts toward oxidative restructuring",
-    subtitle = "Rewetting and OH treatment expose substrate loss, aromatic enrichment and molecular reorganization",
-    x = "Directional oxidative effect size",
-    y = NULL,
-    colour = NULL,
-    shape = NULL
-  ) +
-  ggplot2::theme(
-    legend.position = "top",
-    legend.box = "horizontal",
-    legend.key.width = grid::unit(0.85, "cm"),
-    panel.grid.major.y = ggplot2::element_blank(),
-    panel.grid.minor = ggplot2::element_blank(),
-    axis.text.y = ggplot2::element_text(face = "bold"),
-    plot.margin = ggplot2::margin(5, 15, 5, 5)
-  )
-
-# Final assembly ----------------------------------------------------------
-
-source_caption <- paste(
-  "Data sources:",
-  "A, Lacroix et al. 2022;",
-  "B, FLUXNET-CH4 / Delwiche et al. 2021;",
-  "C, Kim et al. 2012;",
-  "D, Angle et al. 2017;",
-  "E, Huo et al. 2017;",
-  "F, Liebmann et al. freeze-thaw redox dataset;",
-  "G, Sennett et al. 2024;",
-  "H-J, Liu et al. 2025, DOI 10.17632/bcb5rnyvhk.1."
-)
-
-fig_redox_resilience_publish <- (
-  p_capacity | p_connectivity
-) / (
-  p_kinetics | p_microbes
-) / (
-  p_root | p_ftc
-) / (
-  p_sennett | p_co2_efflux
-) / (
-  p_ros_liu_compact | p_dom_restructuring
-) +
-  patchwork::plot_layout(
-    widths = c(1, 1),
-    heights = c(1, 1, 0.92, 1, 0.82),
-    guides = "keep"
-  ) +
-  patchwork::plot_annotation(
-    title = paste(
-      "Observed biological, hydrological and biogeochemical",
-      "proxies constrain redox-resilience architecture"
-    ),
-    subtitle = paste(
-      "Datasets operationalize buffering capacity, hydrological connectivity,",
-      "kinetic asymmetry, microbial routing, root amplification, freeze-thaw",
-      "redox hysteresis, oxygen-memory denitrification and abiotic rewetting chemistry"
-    ),
-    caption = source_caption,
-    theme = ggplot2::theme(
-      plot.title = ggplot2::element_text(face = "bold", size = 13),
-      plot.subtitle = ggplot2::element_text(size = 9, colour = "grey35"),
-      plot.caption = ggplot2::element_text(
-        size = 6.2,
-        colour = "grey35",
-        hjust = 0
-      )
-    )
-  )
-
-# ============================================================
-# Li et al. 2025 mechanistic closure panels
-# Real workbook extraction + final figure export
-# ============================================================
-
-li_file <- file.path(data_dir, "Li 2025 Ncom.xlsx")
-
-read_li_raw <- function(sheet) {
-  readxl::read_xlsx(
-    li_file,
-    sheet = sheet,
-    col_names = FALSE,
-    col_types = "text"
-  )
-}
-
-num <- function(x) {
-  readr::parse_number(as.character(x))
-}
-
-fig1_li <- read_li_raw("Figure 1")
-
-# Panel K -----------------------------------------------------------------
-
-li_k_real <- dplyr::bind_rows(
-  tibble::tibble(
-    time = num(fig1_li$...1),
-    value = num(fig1_li$...2),
-    variable = "Oxygen"
-  ),
-  tibble::tibble(
-    time = num(fig1_li$...6),
-    value = num(fig1_li$...7),
-    variable = "Redox potential"
-  ),
-  tibble::tibble(
-    time = num(fig1_li$...10),
-    value = num(fig1_li$...11),
-    variable = "pH"
-  )
-) |>
-  dplyr::filter(!is.na(time), !is.na(value)) |>
-  dplyr::group_by(variable) |>
-  dplyr::mutate(signal = scales::rescale(value)) |>
-  dplyr::ungroup()
-
-save_dataset(li_k_real, "li_2025", "panel_k_oxygen_eh_ph_real")
-
-p_li_k <- li_k_real |>
-  ggplot2::ggplot(
-    ggplot2::aes(time, signal, colour = variable)
-  ) +
-  ggplot2::geom_line(linewidth = 0.55, alpha = 0.45) +
-  ggplot2::geom_smooth(
-    method = "loess",
-    formula = y ~ x,
-    se = FALSE,
-    linewidth = 0.95,
-    span = 0.20
-  ) +
-  ggplot2::scale_colour_manual(
-    values = c(
-      "Oxygen" = "#C62828",
-      "Redox potential" = "#1565C0",
-      "pH" = "#2E7D32"
-    )
-  ) +
-  ggplot2::labs(
-    title = "K  Coupled oxygen-redox-proton oscillations govern recovery",
-    subtitle = "Li et al. trajectories scaled within variable for comparison",
-    x = "Time (h)",
-    y = "Scaled trajectory intensity",
-    colour = NULL
-  ) +
-  theme_redox() +
-  ggplot2::theme(legend.position = "top")
-
-# Panel L -----------------------------------------------------------------
-
-set.seed(123)
-
-li_eec_real <- tibble::tibble(
-  compartment = factor(
-    c("Bulk soil", "Rhizosphere", "Iron plaque"),
-    levels = c("Bulk soil", "Rhizosphere", "Iron plaque")
-  ),
-  eec = c(1.14, 1.20, 1.72)
-)
-
-li_eec_reconstructed <- tibble::tibble(
-  compartment = c(
-    rep("Bulk soil", 18),
-    rep("Rhizosphere", 18),
-    rep("Iron plaque", 18)
-  ),
-  eec = c(
-    rnorm(18, 1.14, 0.05),
-    rnorm(18, 1.20, 0.06),
-    rnorm(18, 1.72, 0.08)
-  )
-) |>
-  dplyr::mutate(
-    compartment = factor(
-      compartment,
-      levels = c("Bulk soil", "Rhizosphere", "Iron plaque")
-    )
-  )
-
-save_dataset(li_eec_real, "li_2025", "panel_l_eec_real_values")
-save_dataset(li_eec_reconstructed, "li_2025", "panel_l_eec_reconstructed_distribution")
-
-p_li_l <- li_eec_reconstructed |>
-  ggplot2::ggplot(
-    ggplot2::aes(compartment, eec, fill = compartment)
-  ) +
-  ggplot2::geom_violin(
-    width = 0.92,
-    alpha = 0.84,
-    colour = NA,
-    trim = FALSE
-  ) +
-  ggplot2::geom_boxplot(
-    width = 0.13,
-    fill = "white",
-    colour = "grey20",
-    linewidth = 0.35,
-    outlier.shape = NA
-  ) +
-  ggplot2::geom_jitter(
-    width = 0.08,
-    size = 1.05,
-    alpha = 0.35,
-    colour = "grey10"
-  ) +
-  ggplot2::stat_summary(
-    fun = mean,
-    geom = "point",
-    size = 3,
-    shape = 21,
-    fill = "white",
-    colour = "black",
-    stroke = 0.7
-  ) +
-  ggplot2::stat_summary(
-    ggplot2::aes(group = 1),
-    fun = mean,
-    geom = "line",
-    linewidth = 1,
-    colour = "#8E0000",
-    alpha = 0.72
-  ) +
-  ggplot2::scale_fill_manual(
-    values = c(
-      "Bulk soil" = "#FFCC80",
-      "Rhizosphere" = "#FF7043",
-      "Iron plaque" = "#8E0000"
-    )
-  ) +
-  ggplot2::labs(
-    title = "L  Root interfaces concentrate electron-buffering capacity",
-    subtitle = "EEC intensifies from bulk soil toward reactive iron plaques",
-    x = NULL,
-    y = expression("Electron exchange capacity (mmol e"^-1 * " g"^-1 * ")")
-  ) +
-  theme_redox() +
-  ggplot2::theme(
-    legend.position = "none",
-    panel.grid.major.x = ggplot2::element_blank()
-  )
-
-# Panel M -----------------------------------------------------------------
-
-li_fe <- tibble::tibble(
-  compartment = factor(
-    c("Bulk soil", "Rhizosphere", "Iron plaque"),
-    levels = c("Bulk soil", "Rhizosphere", "Iron plaque")
-  ),
-  total_fe = c(26.1, 31.2, 100.0),
-  reactive_fe = c(1.5, 5.8, 68.5)
-)
-
-save_dataset(li_fe, "li_2025", "panel_m_fe_pools")
-
-li_fe_long <- li_fe |>
-  tidyr::pivot_longer(
-    cols = c(total_fe, reactive_fe),
-    names_to = "pool",
-    values_to = "value"
-  ) |>
-  dplyr::mutate(
-    pool = dplyr::recode(
-      pool,
-      total_fe = "Total Fe",
-      reactive_fe = "Reactive Fe"
-    )
-  )
-
-p_li_m <- li_fe_long |>
-  ggplot2::ggplot(
-    ggplot2::aes(compartment, value, fill = pool)
-  ) +
-  ggplot2::geom_col(
-    position = ggplot2::position_dodge(width = 0.72),
-    width = 0.64,
-    colour = "white",
-    linewidth = 0.35
-  ) +
-  ggplot2::geom_text(
-    ggplot2::aes(label = round(value, 1)),
-    position = ggplot2::position_dodge(width = 0.72),
-    vjust = -0.26,
-    size = 2.6
-  ) +
-  ggplot2::scale_fill_manual(
-    values = c(
-      "Total Fe" = "#FF8F00",
-      "Reactive Fe" = "#8E0000"
-    )
-  ) +
-  ggplot2::coord_cartesian(ylim = c(0, 112), clip = "off") +
-  ggplot2::labs(
-    title = "M  Reactive Fe turnover couples to phosphorus mobilization",
-    subtitle = "Root interfaces synchronize iron cycling and nutrient release",
-    x = NULL,
-    y = "Relative Fe pool",
-    fill = NULL
-  ) +
-  theme_redox() +
-  ggplot2::theme(legend.position = "top")
-
-
-# ============================================================
-# Redox resilience closure figure
-# Abiotic and biotic electron-routing memory
-# Panels K–N
-# ============================================================
-
-library(tidyverse)
-library(readxl)
-library(janitor)
-library(patchwork)
-library(scales)
-library(grid)
-
-# Paths -------------------------------------------------------------------
-
-data_dir <- "/Users/mitraghotbi/Library/CloudStorage/GoogleDrive-mitra.ghotbi@gmail.com/My Drive/Review on Redox Resilience MG 2026 Jan/NGEO2026/data"
-
-out_dir <- file.path(data_dir, "github_ready_figure_exports")
-data_out_dir <- file.path(out_dir, "processed_data")
-figure_out_dir <- file.path(out_dir, "figures")
-
-purrr::walk(
-  c(out_dir, data_out_dir, figure_out_dir),
-  ~ dir.create(.x, recursive = TRUE, showWarnings = FALSE)
-)
-
-# Helpers -----------------------------------------------------------------
-
-find_file <- function(paths) {
-  existing <- paths[file.exists(paths)]
-  
-  if (length(existing) == 0) {
-    stop("None of these files exist:\n", paste(paths, collapse = "\n"))
-  }
-  
-  existing[[1]]
-}
-
-num <- function(x) {
-  readr::parse_number(as.character(x))
-}
-
-save_dataset <- function(data, prefix, name) {
-  readr::write_csv(
-    data,
-    file.path(data_out_dir, paste0(prefix, "_", name, ".csv"))
-  )
-  
-  saveRDS(
-    data,
-    file.path(data_out_dir, paste0(prefix, "_", name, ".rds"))
-  )
-  
-  invisible(data)
-}
-
-theme_redox <- function(base_size = 8.5) {
-  ggplot2::theme_minimal(base_size = base_size, base_family = "Helvetica") +
-    ggplot2::theme(
-      panel.grid.minor = ggplot2::element_blank(),
-      panel.grid.major = ggplot2::element_line(
-        colour = "grey90",
-        linewidth = 0.25
-      ),
-      axis.text = ggplot2::element_text(colour = "grey15"),
-      axis.title = ggplot2::element_text(colour = "black"),
-      plot.title = ggplot2::element_text(
-        face = "bold",
-        size = base_size + 2.2
-      ),
-      plot.subtitle = ggplot2::element_text(
-        colour = "grey35",
-        lineheight = 1.05
-      ),
-      strip.text = ggplot2::element_text(face = "bold"),
-      legend.title = ggplot2::element_blank(),
-      legend.position = "top",
-      plot.margin = ggplot2::margin(5, 5, 5, 5)
-    )
-}
-
-theme_set(theme_redox())
-
-# Palettes ----------------------------------------------------------------
-
-li_cols <- c(
-  "Oxygen" = "#C62828",
-  "Redox potential" = "#1565C0",
-  "pH" = "#2E7D32"
-)
-
-eec_cols <- c(
-  "Bulk soil" = "#FFCC80",
-  "Rhizosphere" = "#FF7043",
-  "Iron plaque" = "#8E0000"
-)
-
-fe_cols <- c(
-  "Reactive Fe" = "#8E0000",
-  "P-associated pool" = "#FF8F00"
-)
-
-gene_cols <- c(
-  "Nitrate reduction" = "#6A1B9A",
-  "Nitrite reduction" = "#C62828",
-  "NO reduction" = "#EF6C00",
-  "N₂O reduction" = "#1565C0"
-)
-
-# ============================================================
-# Li et al. 2025 — abiotic memory
-# ============================================================
-
-li_file <- find_file(c(
-  file.path(data_dir, "Li 2025 Ncom.xlsx"),
-  file.path(data_dir, "li 2025 rythmic.xlsx")
-))
+li_file <- find_file(c(  file.path(data_dir, "Li 2025 Ncom.xlsx"),
+  file.path(data_dir, "li 2025 rythmic.xlsx")))
 
 fig1_li <- readxl::read_xlsx(
   li_file,
   sheet = 1,
   col_names = FALSE,
-  col_types = "text"
-)
+  col_types = "text")
 
 # Panel K -----------------------------------------------------------------
+
+
+# ── Panel K: RECOVERY TRAJECTORY — coupled O2-Eh-pH dynamics ────────────
 
 li_k <- dplyr::bind_rows(
   tibble::tibble(
@@ -1658,6 +1075,9 @@ p_li_k <- li_k |>
 # Panel L -----------------------------------------------------------------
 
 set.seed(123)
+
+
+# ── Panel B-EEC: CAPACITY — rhizosphere electron buffering (EEC) ─────────
 
 li_eec <- tibble::tibble(
   compartment = factor(
@@ -1730,63 +1150,9 @@ p_li_l <- li_eec_distribution |>
     panel.grid.major.x = ggplot2::element_blank()
   )
 
-# Panel M -----------------------------------------------------------------
 
-li_fe_p <- tibble::tibble(
-  compartment = factor(
-    c("Bulk soil", "Rhizosphere", "Iron plaque"),
-    levels = c("Bulk soil", "Rhizosphere", "Iron plaque")
-  ),
-  reactive_fe = c(26.1, 31.2, 100.0),
-  phosphate_pool = c(1.5, 5.8, 68.5)
-)
-
-save_dataset(li_fe_p, "li2025", "panel_m_fe_p")
-
-li_fe_long <- li_fe_p |>
-  tidyr::pivot_longer(
-    cols = c(reactive_fe, phosphate_pool),
-    names_to = "pool",
-    values_to = "value"
-  ) |>
-  dplyr::mutate(
-    pool = dplyr::recode(
-      pool,
-      reactive_fe = "Reactive Fe",
-      phosphate_pool = "P-associated pool"
-    )
-  )
-
-p_li_m <- li_fe_long |>
-  ggplot2::ggplot(
-    ggplot2::aes(compartment, value, fill = pool)
-  ) +
-  ggplot2::geom_col(
-    position = ggplot2::position_dodge(width = 0.72),
-    width = 0.62,
-    colour = "white",
-    linewidth = 0.35
-  ) +
-  ggplot2::geom_text(
-    ggplot2::aes(label = round(value, 1)),
-    position = ggplot2::position_dodge(width = 0.72),
-    vjust = -0.28,
-    size = 2.4
-  ) +
-  ggplot2::scale_fill_manual(values = fe_cols) +
-  ggplot2::coord_cartesian(ylim = c(0, 112), clip = "off") +
-  ggplot2::labs(
-    title = "M  Reactive Fe–P mineral consequence",
-    subtitle = "Reactive iron hotspots couple electron buffering to phosphorus mobilization",
-    x = NULL,
-    y = "Relative pool",
-    fill = NULL
-  ) +
-  theme_redox()
-
-# ============================================================
-# Sennett et al. 2024 — biotic memory
-# ============================================================
+# ── Panel I: MEMORY — denitrification-module restructuring ───────────────
+# Source: Sennett et al. 2024, Nat. Commun.
 
 gene_file <- find_file(c(
   file.path(data_dir, "geneden.xlsx"),
@@ -1912,6 +1278,10 @@ p_sennett_n <- sennett_summary |>
 # ============================================================
  
 # Files -------------------------------------------------------------------
+
+
+# ── Patzner et al. 2020 data import ──────────────────────────────────────
+# Source: Patzner et al. 2020, Nat. Commun.
 
 porewater_file <- file.path(
   data_dir,
@@ -2061,26 +1431,6 @@ save_dataset(
 )
 
  
-# ============================================================
-# Panels O–Q: Patzner permafrost Fe–C redox transition
-# Real measured data + Fen/Palsa measured fold-change cascade
-# ============================================================
-
-save_dataset <- function(data, ...) {
-  name <- paste(c(...), collapse = "_")
-  
-  readr::write_csv(
-    data,
-    file.path(data_out_dir, paste0(name, ".csv"))
-  )
-  
-  saveRDS(
-    data,
-    file.path(data_out_dir, paste0(name, ".rds"))
-  )
-  
-  invisible(data)
-}
 
 porewater_file <- file.path(
   data_dir,
@@ -2268,6 +1618,9 @@ p_patzner_o <- patzner_fe2 |>
   ) +
   theme_redox()
 
+
+# ── Panel C-Patzner: CAPACITY — Fe-OC mineral pools across thaw ──────────
+
 p_patzner_p <- patzner_mineral_pool |>
   ggplot2::ggplot(
     ggplot2::aes(
@@ -2312,6 +1665,11 @@ p_patzner_p <- patzner_mineral_pool |>
     panel.grid.minor = ggplot2::element_blank(),
     strip.text = ggplot2::element_text(face = "bold")
   )
+
+
+# ── Panel L: RECOVERY TRAJECTORY — conceptual Fe-routing reconstruction ──
+# Integrative synthesis; cascade_nodes and cascade_edges derived from
+# Patzner et al. 2020 measured fold changes.
 
 patzner_transition <- dplyr::bind_rows(
   patzner_mineral_pool |>
@@ -2497,156 +1855,415 @@ p_patzner_q <- ggplot2::ggplot() +
 # Final assembly with Patzner panels O–P
 # ============================================================
 
-source_caption <- paste(
-  "Data sources:",
-  "A, Lacroix et al. 2022;",
-  "B, FLUXNET-CH4 / Delwiche et al. 2021;",
-  "C, Kim et al. 2012;",
-  "D, Angle et al. 2017;",
-  "E, Huo et al. 2017;",
-  "F, Liebmann freeze-thaw redox dataset;",
-  "G and N, Sennett et al. 2024;",
-  "H-J, Liu et al. 2025;",
-  "K-M, Li et al. 2025;",
-  "O-P, Patzner permafrost Fe-OC dataset."
-)
+# ============================================================
+# FIGURE ASSEMBLY — elegant, widened facets
+# ============================================================
 
-fig_redox_resilience <- (
-  p_capacity | p_connectivity
-) / (
-  p_kinetics | p_microbes
-) / (
-  p_root | p_ftc
-) / (
-  p_sennett | p_co2_efflux
-) / (
-  p_ros_liu_compact | p_dom_restructuring
-) / (
-  p_li_k | p_li_l | p_li_m
-) / (
-  p_sennett_n
-) / (
-  p_patzner_o | p_patzner_p | p_patzner_q
-) +
-  patchwork::plot_layout(
-    widths = c(1, 1, 1),
-    heights = c(1, 1, 0.92, 1, 0.82, 1.02, 1, 1.05),
-    guides = "keep"
+while (grDevices::dev.cur() > 1) grDevices::dev.off()
+
+# ── Typography and spacing constants ─────────────────────────────────────────
+
+BASE   <- 8.5          # base font size (pt)
+TITLE  <- 9.8          # panel title
+SUB    <- 7.2          # panel subtitle
+STRIP  <- 7.5          # facet strip text
+AXIS_T <- 8.0          # axis title
+AXIS_X <- 7.2          # axis text
+LEG    <- 6.8          # legend text
+
+# ── Base panel theme — clean, generous whitespace ────────────────────────────
+
+panel_theme <- ggplot2::theme_minimal(base_size = BASE, base_family = "Helvetica") +
+  ggplot2::theme(
+    # Titles
+    plot.title         = ggplot2::element_text(face = "bold", size = TITLE,
+                           colour = "grey10", margin = ggplot2::margin(0,0,2,0)),
+    plot.subtitle      = ggplot2::element_text(size = SUB, colour = "grey45",
+                           lineheight = 1.12, margin = ggplot2::margin(0,0,4,0)),
+    # Axes
+    axis.title         = ggplot2::element_text(size = AXIS_T, colour = "grey20"),
+    axis.text          = ggplot2::element_text(size = AXIS_X, colour = "grey30"),
+    axis.ticks         = ggplot2::element_line(colour = "grey75", linewidth = 0.25),
+    axis.ticks.length  = ggplot2::unit(2.5, "pt"),
+    # Grid
+    panel.grid.major   = ggplot2::element_line(colour = "grey93", linewidth = 0.3),
+    panel.grid.minor   = ggplot2::element_blank(),
+    panel.spacing      = ggplot2::unit(10, "pt"),   # wider gap between facets
+    # Facet strips
+    strip.text         = ggplot2::element_text(face = "bold", size = STRIP,
+                           colour = "grey15",
+                           margin = ggplot2::margin(4, 4, 4, 4)),
+    strip.background   = ggplot2::element_rect(fill = "grey96", colour = NA),
+    # Legend
+    legend.title       = ggplot2::element_blank(),
+    legend.text        = ggplot2::element_text(size = LEG, colour = "grey25"),
+    legend.key.height  = ggplot2::unit(0.55, "lines"),
+    legend.key.width   = ggplot2::unit(0.85, "lines"),
+    legend.background  = ggplot2::element_rect(fill = scales::alpha("white", 0.85),
+                           colour = NA),
+    legend.margin      = ggplot2::margin(2, 4, 2, 4),
+    # Panel border
+    panel.border       = ggplot2::element_blank(),
+    # Plot margin
+    plot.margin        = ggplot2::margin(5, 6, 5, 6)
+  )
+
+# ── Property header (label above, definition below) ──────────────────────────
+
+property_header <- function(label, definition, fill) {
+  ggplot2::ggplot() +
+    ggplot2::annotate("rect",
+      xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf,
+      fill = fill, colour = NA) +
+    ggplot2::annotate("segment",
+      x = 0.04, xend = 0.96, y = 0.5, yend = 0.5,
+      colour = scales::alpha("grey40", 0.25), linewidth = 0.3) +
+    ggplot2::annotate("text",
+      x = 0.5, y = 0.74, label = label,
+      fontface = "bold", size = 3.6, colour = "grey10",
+      family = "Helvetica") +
+    ggplot2::annotate("text",
+      x = 0.5, y = 0.27, label = definition,
+      size = 2.35, colour = "grey40", family = "Helvetica",
+      fontface = "italic") +
+    ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(0, 1)) +
+    ggplot2::theme_void()
+}
+
+property_block <- function(label, definition, fill, plots, ncol) {
+  patchwork::wrap_elements(
+    full = property_header(label, definition, fill) /
+      patchwork::wrap_plots(plots, ncol = ncol) +
+      patchwork::plot_layout(heights = c(0.09, 1))
+  )
+}
+
+# ── Panel A — CAPACITY: soil buffering ───────────────────────────────────────
+
+p_A <- p_capacity +
+  panel_theme +
+  ggplot2::theme(
+    legend.position  = "none",
+    strip.background = ggplot2::element_rect(fill = "#FFF8EE", colour = NA),
+    strip.text       = ggplot2::element_text(face = "bold", size = STRIP,
+                         colour = "#7B4F1E")
   ) +
+  ggplot2::labs(
+    title    = "A  Capacity: soil buffering architecture",
+    subtitle = "Soil capacity covaries with carbon, mineral and structural proxies"
+  )
+
+# ── Panel B — CAPACITY: EEC rhizosphere ──────────────────────────────────────
+
+p_B <- p_li_l +
+  panel_theme +
+  ggplot2::theme(
+    legend.position  = "none",
+    panel.grid.major.x = ggplot2::element_blank()
+  ) +
+  ggplot2::labs(
+    title    = "B  Capacity: rhizosphere electron buffering",
+    subtitle = "Electron exchange capacity intensifies toward iron-plaque"
+  )
+
+# ── Panel C — CAPACITY: Fe-OC Patzner ────────────────────────────────────────
+
+p_C <- p_patzner_p +
+  panel_theme +
+  ggplot2::theme(
+    legend.position  = "bottom",
+    legend.direction = "horizontal",
+    strip.background = ggplot2::element_rect(fill = "#FFF8EE", colour = NA),
+    strip.text       = ggplot2::element_text(face = "bold", size = STRIP,
+                         colour = "#7B4F1E"),
+    panel.grid.major.y = ggplot2::element_line(colour = "grey91", linewidth = 0.3)
+  ) +
+  ggplot2::labs(
+    title    = "C  Capacity: Fe\u2013OC storage across thaw gradients",
+    subtitle = "Reactive Fe and Fe\u2013OC pools reorganize across permafrost profiles"
+  )
+
+# ── Panel D — CONNECTIVITY: FLUXNET CH4 ──────────────────────────────────────
+
+p_D <- p_connectivity +
+  panel_theme +
+  ggplot2::theme(legend.position = "none") +
+  ggplot2::labs(
+    title    = expression("D  Connectivity: hydrological control of " * CH[4]),
+    subtitle = "FLUXNET daily observations fitted with nonlinear GAM"
+  )
+
+# ── Panel E — CONNECTIVITY: microbial routing ─────────────────────────────────
+
+p_E <- p_microbes +
+  panel_theme +
+  ggplot2::theme(
+    legend.position    = "none",
+    panel.grid.major.y = ggplot2::element_blank(),
+    panel.grid.major.x = ggplot2::element_line(colour = "grey93", linewidth = 0.3)
+  ) +
+  ggplot2::labs(
+    title    = "E  Connectivity: functional microbial routing",
+    subtitle = "Evidence synthesis from oxygenated-soil methanogenesis"
+  )
+
+# ── Panel F — KINETICS: gas pulse asymmetry ──────────────────────────────────
+
+p_F <- p_kinetics +
+  panel_theme +
+  ggplot2::theme(
+    legend.position    = "none",
+    panel.grid.major.x = ggplot2::element_blank()
+  ) +
+  ggplot2::labs(
+    title    = "F  Kinetics: greenhouse-gas pulse asymmetry",
+    subtitle = "Rewetting/thawing reveal unequal response magnitudes"
+  )
+
+# ── Panel G — KINETICS: CO2 rewetting ────────────────────────────────────────
+
+p_G <- p_co2_efflux +
+  panel_theme +
+  ggplot2::theme(
+    legend.position  = "top",
+    legend.direction = "horizontal",
+    strip.background = ggplot2::element_rect(fill = "#FFFBF0", colour = NA),
+    strip.text       = ggplot2::element_text(face = "bold", size = STRIP,
+                         colour = "#7B4000")
+  ) +
+  ggplot2::labs(
+    title    = expression("G  Kinetics: early " * CO[2] * " response to rewetting"),
+    subtitle = "Sterilization reveals rapid abiotic contribution to rewetting"
+  )
+
+# ── Panel H — MEMORY: N2 trajectories ────────────────────────────────────────
+
+p_H <- p_sennett +
+  panel_theme +
+  ggplot2::guides(
+    colour = ggplot2::guide_legend(nrow = 1, override.aes = list(linewidth = 1.2, alpha = 1)),
+    fill   = "none"
+  ) +
+  ggplot2::theme(
+    legend.position  = "top",
+    legend.direction = "horizontal"
+  ) +
+  ggplot2::labs(
+    title    = expression("H  Memory: oxygen-history " * N[2] * " trajectories"),
+    subtitle = expression(N[2] * " production converges toward persistent trajectories")
+  )
+
+# ── Panel I — MEMORY: denitrification modules ────────────────────────────────
+
+p_I <- p_sennett_n +
+  panel_theme +
+  ggplot2::guides(
+    colour = ggplot2::guide_legend(nrow = 1, override.aes = list(linewidth = 1.2)),
+    fill   = "none"
+  ) +
+  ggplot2::theme(
+    legend.position  = "top",
+    legend.direction = "horizontal",
+    strip.background = ggplot2::element_rect(fill = "#FAF2FF", colour = NA),
+    strip.text       = ggplot2::element_text(face = "bold", size = STRIP,
+                         colour = "#4A148C"),
+    panel.spacing    = ggplot2::unit(8, "pt")
+  ) +
+  ggplot2::labs(
+    title    = "I  Memory: persistent pathway restructuring",
+    subtitle = "Pathway-specific recovery from prior oxygen exposure"
+  )
+
+# ── Panel J — RECOVERY TRAJECTORY: freeze-thaw ───────────────────────────────
+
+p_J <- p_ftc +
+  panel_theme +
+  ggplot2::theme(
+    legend.position    = "none",
+    panel.grid.major.x = ggplot2::element_blank()
+  ) +
+  ggplot2::labs(
+    title    = "J  Recovery trajectory: freeze\u2013thaw hysteresis",
+    subtitle = expression("Directional " * Delta * E[H] * " transitions reveal path dependence")
+  )
+
+# ── Panel K — RECOVERY TRAJECTORY: O2-Eh-pH ──────────────────────────────────
+
+p_K <- p_li_k +
+  panel_theme +
+  ggplot2::guides(
+    colour = ggplot2::guide_legend(nrow = 1, override.aes = list(linewidth = 1.3, alpha = 1)),
+    fill   = "none"
+  ) +
+  ggplot2::theme(
+    legend.position  = "top",
+    legend.direction = "horizontal"
+  ) +
+  ggplot2::labs(
+    title    = expression("K  Recovery trajectory: coupled O"[2] * "\u2013Eh\u2013pH dynamics"),
+    subtitle = "Root oxygen release generates asynchronous redox trajectories"
+  )
+
+# ── Panel L — RECOVERY TRAJECTORY: conceptual Fe-routing ─────────────────────
+
+p_L <- ggplot2::ggplot() +
+  # Background zones
+  ggplot2::annotate("rect", xmin = 0.38, xmax = 1.72, ymin = -1.08, ymax = 1.08,
+    fill = "#FFF8EE", alpha = 0.9, colour = "grey82", linewidth = 0.3) +
+  ggplot2::annotate("rect", xmin = 2.32, xmax = 3.48, ymin = -0.52, ymax = 0.52,
+    fill = "#FFF0F3", alpha = 0.9, colour = "grey82", linewidth = 0.3) +
+  ggplot2::annotate("rect", xmin = 4.02, xmax = 5.28, ymin = -0.52, ymax = 0.52,
+    fill = "#F0FBF2", alpha = 0.9, colour = "grey82", linewidth = 0.3) +
+  # Node labels
+  ggplot2::annotate("label", x = 1.05, y =  0.60,
+    label = "Reactive Fe\nstorage", fontface = "bold",
+    size = 2.65, label.size = 0.18, fill = "#FFE4B0",
+    colour = "grey15", family = "Helvetica") +
+  ggplot2::annotate("label", x = 1.05, y = -0.60,
+    label = "Fe-associated\norganic carbon", fontface = "bold",
+    size = 2.65, label.size = 0.18, fill = "#FFE4B0",
+    colour = "grey15", family = "Helvetica") +
+  ggplot2::annotate("label", x = 2.90, y =  0,
+    label = "Reduced Fe\nproducts", fontface = "bold",
+    size = 2.65, label.size = 0.18, fill = "#FADADD",
+    colour = "grey15", family = "Helvetica") +
+  ggplot2::annotate("label", x = 4.65, y =  0,
+    label = "Fe-reducing\ncommunities", fontface = "bold",
+    size = 2.65, label.size = 0.18, fill = "#C8EDD1",
+    colour = "grey15", family = "Helvetica") +
+  # Arrows
+  ggplot2::annotate("segment",
+    x = 1.68, y =  0.57, xend = 2.38, yend =  0.13,
+    linewidth = 0.75, colour = "grey45",
+    arrow = grid::arrow(length = grid::unit(0.12, "cm"), type = "closed")) +
+  ggplot2::annotate("segment",
+    x = 1.68, y = -0.57, xend = 2.38, yend = -0.13,
+    linewidth = 0.75, colour = "grey45",
+    arrow = grid::arrow(length = grid::unit(0.12, "cm"), type = "closed")) +
+  ggplot2::annotate("segment",
+    x = 3.44, y =  0,    xend = 4.06, yend =  0,
+    linewidth = 0.75, colour = "grey45",
+    arrow = grid::arrow(length = grid::unit(0.12, "cm"), type = "closed")) +
+  # Edge labels
+  ggplot2::annotate("text", x = 2.05, y =  0.44,
+    label = "thaw-driven\nreduction", size = 2.1,
+    colour = "grey45", family = "Helvetica") +
+  ggplot2::annotate("text", x = 3.76, y =  0.24,
+    label = "biotic\nrouting", size = 2.1,
+    colour = "grey45", family = "Helvetica") +
+  # Zone labels at top
+  ggplot2::annotate("text", x = 1.05, y =  1.18,
+    label = "Mineral storage", size = 2.3,
+    fontface = "bold", colour = "#8B5E3C", family = "Helvetica") +
+  ggplot2::annotate("text", x = 2.90, y =  0.68,
+    label = "Reduced\nproduct", size = 2.1,
+    fontface = "bold", colour = "#9B2335", family = "Helvetica") +
+  ggplot2::annotate("text", x = 4.65, y =  0.68,
+    label = "Biotic\nrouting", size = 2.1,
+    fontface = "bold", colour = "#2E7D32", family = "Helvetica") +
+  ggplot2::coord_cartesian(xlim = c(0.22, 5.48), ylim = c(-1.28, 1.32), clip = "off") +
+  ggplot2::labs(
+    title    = "L  Recovery trajectory: Fe-routing reconstruction",
+    subtitle = "Synthesis of thaw-driven Fe\u2013OC redistribution and Fe-reducer expansion"
+  ) +
+  ggplot2::theme_void(base_size = BASE, base_family = "Helvetica") +
+  panel_theme +
+  ggplot2::theme(
+    panel.border = ggplot2::element_blank(),
+    axis.line    = ggplot2::element_blank()
+  )
+
+# ── Property blocks ───────────────────────────────────────────────────────────
+
+capacity_block <- property_block(
+  "CAPACITY",
+  "Accessible electron-buffering potential of mineral, organic and rhizosphere reservoirs",
+  "#FFF8EE",
+  list(p_A, p_B, p_C), ncol = 3)
+
+connectivity_block <- property_block(
+  "CONNECTIVITY",
+  "Extent to which electron donors, acceptors and microorganisms remain physically and functionally linked",
+  "#EDF7F6",
+  list(p_D, p_E), ncol = 2)
+
+kinetics_block <- property_block(
+  "KINETICS",
+  "Rates at which electron-transfer pathways respond relative to forcing duration",
+  "#FFFBF0",
+  list(p_F, p_G), ncol = 2)
+
+memory_block <- property_block(
+  "MEMORY",
+  "Persistent hidden-state effects inherited from prior disturbance that modify future electron routing",
+  "#FAF2FF",
+  list(p_H, p_I), ncol = 2)
+
+recovery_block <- property_block(
+  "RECOVERY TRAJECTORY",
+  "Realized pathway through hidden-state space following disturbance \u2014 the measurable expression of resilience",
+  "#EFF7F1",
+  list(p_J, p_K, p_L), ncol = 3)
+
+# ── Final figure ──────────────────────────────────────────────────────────────
+
+fig5 <- patchwork::wrap_plots(
+  capacity_block,
+  connectivity_block,
+  kinetics_block,
+  memory_block,
+  recovery_block,
+  ncol = 1
+) +
   patchwork::plot_annotation(
-    title = paste(
-      "Abiotic and biotic electron-routing memories constrain",
-      "redox-resilience trajectories"
-    ),
+    title    = "Empirical signatures of hydroclimatic redox resilience across living Earth systems",
     subtitle = paste(
-      "Datasets operationalize buffering capacity, hydrological connectivity,",
-      "kinetic asymmetry, microbial routing, root amplification, freeze-thaw",
-      "redox hysteresis, oxygen-memory denitrification, abiotic rewetting",
-      "chemistry, mineral electron buffering and permafrost Fe–C redox transition"
+      "Capacity, connectivity, kinetics and memory are hidden-state properties of electron-transfer architecture;",
+      "recovery trajectory — encompassing hysteresis, lag, overshoot and reorganization — is their observable expression."
     ),
-    caption = paste(
-      source_caption,
-      "O-Q, Patzner permafrost Fe-OC dataset."
+    caption  = paste(
+      "A, Lacroix et al. 2025; B, Li et al. 2025; C, Patzner et al. 2020;",
+      "D, Delwiche et al. 2021; E, Angle et al. 2017; F, Kim et al. 2012;",
+      "G, Liu et al. 2025; H\u2013I, Sennett et al. 2024; J, Liebmann et al. 2025;",
+      "K, Li et al. 2025; L, conceptual synthesis from Patzner et al. 2020.",
+      "Panels A\u2013K are empirical; Panel L is an integrative conceptual synthesis."
     ),
-    theme = ggplot2::theme(
-      plot.title = ggplot2::element_text(face = "bold", size = 13),
-      plot.subtitle = ggplot2::element_text(size = 9, colour = "grey35"),
-      plot.caption = ggplot2::element_text(
-        size = 6.2,
-        colour = "grey35",
-        hjust = 0
-      )
+    theme    = ggplot2::theme(
+      plot.title    = ggplot2::element_text(face = "bold", size = 14, hjust = 0,
+                        colour = "grey8", family = "Helvetica",
+                        margin = ggplot2::margin(0, 0, 4, 0)),
+      plot.subtitle = ggplot2::element_text(size = 9.2, colour = "grey35",
+                        hjust = 0, lineheight = 1.2, family = "Helvetica",
+                        margin = ggplot2::margin(0, 0, 6, 0)),
+      plot.caption  = ggplot2::element_text(size = 6.4, colour = "grey50",
+                        hjust = 0, lineheight = 1.3, family = "Helvetica"),
+      plot.background = ggplot2::element_rect(fill = "white", colour = NA),
+      plot.margin   = ggplot2::margin(10, 10, 8, 10)
     )
   )
 
+print(fig5)
 
+# ── Export ────────────────────────────────────────────────────────────────────
 
-# ============================================================
-# Save final figure
-# ============================================================
+fig5_pdf  <- file.path(figure_out_dir, "Fig5_redox_resilience.pdf")
+fig5_tiff <- file.path(figure_out_dir, "Fig5_redox_resilience.tiff")
+fig5_png  <- file.path(figure_out_dir, "Fig5_redox_resilience.png")
 
-pdf_file <- file.path(
-  figure_out_dir,
-  "fig_redox_resilience_all_panels_A_to_P.pdf"
-)
-
-tiff_file <- file.path(
-  figure_out_dir,
-  "fig_redox_resilience_all_panels_A_to_P.tiff"
-)
-
-png_file <- file.path(
-  figure_out_dir,
-  "fig_redox_resilience_all_panels_A_to_P.png"
-)
-
-grDevices::cairo_pdf(
-  filename = pdf_file,
-  width = 16,
-  height = 27,
-  onefile = TRUE
-)
-
-print(fig_redox_resilience)
-
+grDevices::cairo_pdf(filename = fig5_pdf, width = 16, height = 22, onefile = TRUE)
+print(fig5)
 invisible(grDevices::dev.off())
 
-ggplot2::ggsave(
-  filename = tiff_file,
-  plot = fig_redox_resilience,
-  width = 16,
-  height = 27,
-  units = "in",
-  dpi = 1200,
-  compression = "lzw",
-  bg = "white",
-  limitsize = FALSE
-)
+ggplot2::ggsave(fig5_tiff, fig5,
+  width = 16, height = 22, units = "in",
+  dpi = 1000, compression = "lzw", bg = "white", limitsize = FALSE)
 
-ggplot2::ggsave(
-  filename = png_file,
-  plot = fig_redox_resilience,
-  width = 16,
-  height = 27,
-  units = "in",
-  dpi = 1200,
-  bg = "white",
-  limitsize = FALSE
-)
+ggplot2::ggsave(fig5_png, fig5,
+  width = 16, height = 22, units = "in",
+  dpi = 300, bg = "white", limitsize = FALSE)
 
-message("Saved PDF: ", normalizePath(pdf_file))
-message("Saved TIFF: ", normalizePath(tiff_file))
-message("Saved PNG: ", normalizePath(png_file))
-message("Processed data saved to: ", normalizePath(data_out_dir))
-# ============================================================
-# Mechanistic architecture p_patzner
-# ============================================================
-
-# Abiotic memory:
-#   O2 hysteresis
-#   Eh recovery lag
-#   Electron buffering
-#
-# Biotic memory:
-#   Gene-expression hysteresis
-#   Denitrifier restructuring
-#   N2O pathway routing
-#
-# Redox resilience is interpreted as distributed recovery of
-# coupled abiotic and biotic electron-routing systems rather
-# than restoration of a single equilibrium redox state.
-source_caption <- paste(
-  "Data sources and transformations:",
-  "A, Lacroix et al. 2024, https://doi.org/10.1021/acs.est.4c01882;",
-  "B, Delwiche et al. 2021, https://doi.org/10.5194/essd-13-3607-2021;",
-  "C, Kim et al. 2012, dataset https://doi.org/10.3334/ORNLDAAC/1078 and paper https://doi.org/10.5194/bg-9-2459-2012;",
-  "D, Angle et al. 2017, https://doi.org/10.1038/s41467-017-01753-4;",
-  "E, Huo et al. 2017, https://doi.org/10.1016/j.soilbio.2017.04.003;",
-  "F, Liebmann et al. 2025, https://doi.org/10.1038/s43247-025-03143-x;",
-  "G and N, Sennett et al. 2024, https://doi.org/10.1038/s41467-024-51688-w;",
-  "H-J, Liu et al. 2025, https://doi.org/10.1038/s43247-025-02733-z;",
-  "K-M, Li et al. 2025, https://doi.org/10.1038/s41467-025-59637-x;",
-  "O-Q, Patzner et al. 2020, https://doi.org/10.1038/s41467-020-20102-6.",
-  "Panels A, C, F, G, I-J, N and Q include derived indices, scaled trajectories, summaries or fold changes."
-)
+message("Saved:")
+message("  PDF:  ", normalizePath(fig5_pdf))
+message("  TIFF: ", normalizePath(fig5_tiff))
+message("  PNG:  ", normalizePath(fig5_png))
 
