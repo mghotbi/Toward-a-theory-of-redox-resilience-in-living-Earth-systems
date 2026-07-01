@@ -144,7 +144,7 @@ A matched ` .csv` + `.rds` pair to `figure_exports/processed_data/`, e.g. `lacro
 
 | Format | Use |
 |:---|:---|
-| `.pdf` | Vector, Cairo PDF device <br><br><a href="https://github.com/user-attachments/assets/e61d6dbb-b630-427f-ba38-3f6a6cadc108"><img src="https://github.com/user-attachments/assets/e61d6dbb-b630-427f-ba38-3f6a6cadc108" width="250"></a> |
+| `.png` | <br><br><a href="https://github.com/user-attachments/assets/e61d6dbb-b630-427f-ba38-3f6a6cadc108"><img src="https://github.com/user-attachments/assets/e61d6dbb-b630-427f-ba38-3f6a6cadc108" width="250"></a> |
 
 <br>
 
