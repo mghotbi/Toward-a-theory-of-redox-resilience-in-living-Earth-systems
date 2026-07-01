@@ -10,10 +10,12 @@ Ghotbi, M. · Kolody, B. C. · Ghotbi, M. · Holtgrewe-Stukenbrock, E.
 [![License: data](https://img.shields.io/badge/data-third--party%2C%20cited-lightgrey)](#license--reuse)
 [![ORCID](https://img.shields.io/badge/ORCID-0000--0001--9185--9993-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0001-9185-9993)
 
+
 </div>
 ---
 
 This repository reproduces **Figure 5** (main text) from raw third-party datasets, through processed intermediates, to figure files.
+
 
 > *Hydroclimatic redox resilience is the capacity of living Earth systems to recover distributed electron-transfer architecture following perturbation.*
 
