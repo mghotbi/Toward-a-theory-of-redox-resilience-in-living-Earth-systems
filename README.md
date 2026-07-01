@@ -20,8 +20,7 @@ This repository reproduces **Figure 5** (main text) from raw third-party dataset
 
 > *Hydroclimatic redox resilience is the capacity of living Earth systems to recover distributed electron-transfer architecture following perturbation.*
 
-<br>
-
+ 
 ## Contents
 
 - [Quick start](#quick-start)
@@ -31,7 +30,6 @@ This repository reproduces **Figure 5** (main text) from raw third-party dataset
 - [Figure outputs](#figure-outputs)
 - [Citation](#citation)
 
-<br>
 
 ## Quick start
 
@@ -42,8 +40,7 @@ cd Toward-a-theory-of-redox-resilience-in-living-Earth-systems
 
 Open `Redox_resilience_figure_script.R`, point `data_dir` at your local copy of `data/`, and run it top to bottom. It regenerates every processed dataset and both figures (`fig_MAIN_10panels_...`, `fig_EXTENDED_DATA_...`).
 
-<br>
-
+ 
 ## Repository structure
 
 ```
@@ -54,8 +51,7 @@ Open `Redox_resilience_figure_script.R`, point `data_dir` at your local copy of 
 ├── figures/               PDF 
 └── README.md
 ```
-<br>
-
+ 
 ## The six properties
 
 Each panel in Figure 5 provides empirical evidence for one of six properties of redox resilience:
