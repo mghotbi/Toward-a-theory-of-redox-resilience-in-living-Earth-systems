@@ -152,7 +152,7 @@ A matched ` .csv` + `.rds` pair to `figure_exports/processed_data/`, e.g. `lacro
 
 ## Citation
 
-If you use this code or these processed datasets, please cite the manuscript above and the original data sources in Table 1.
+If you use these processed datasets, please cite the manuscript above and the original data sources in Table 1.
 
 ## License & reuse
 
