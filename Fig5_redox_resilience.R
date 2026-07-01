@@ -3,8 +3,6 @@
 # Ghotbi et al. 2026
 #
 # Complete self-contained script.
-# Edit data_dir (line 20) and p9_file (line 21) then run
-# top to bottom to produce Fig. 5 as PDF / TIFF / PNG.
 # ============================================================
 
 # 1. Packages -------------------------------------------------------------
