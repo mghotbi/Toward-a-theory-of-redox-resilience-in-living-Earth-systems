@@ -39,7 +39,7 @@ cd Toward-a-theory-of-redox-resilience-in-living-Earth-systems
 ```
 
 Open `Redox_resilience_figure_script.R`, point `data_dir` at your local copy of `data/`, and run it top to bottom. It regenerates every processed dataset and both figures (`fig_MAIN_10panels_...`, `fig_EXTENDED_DATA_...`).
-
+<br>
  
 ## Repository structure
 
