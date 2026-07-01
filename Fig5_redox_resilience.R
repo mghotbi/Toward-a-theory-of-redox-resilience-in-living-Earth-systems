@@ -3,6 +3,7 @@
 # Ghotbi et al. 2026
 #
 # Complete self-contained script.
+# Edit data_dir (line 20) and p9_file (line 21) then run
 # top to bottom to produce Fig. 5 as PDF / TIFF / PNG.
 # ============================================================
 
@@ -1013,7 +1014,7 @@ ros_liu <- tibble::tribble(
 
 li_file <- find_file(c(  file.path(data_dir, "Li 2025 Ncom.xlsx"),  file.path(data_dir, "li 2025 rythmic.xlsx")))
 
-fig1_li <- readxl::read_xlsx(  li_file,   sheet = 1,  col_names = FALSE,  col_types = "text")
+fig1_li <- readxl::read_xlsx(  li_file,  sheet = 1,  col_names = FALSE,  col_types = "text")
 
 # Panel K -----------------------------------------------------------------
 
@@ -2231,7 +2232,7 @@ fig5_pdf  <- file.path(figure_out_dir, "Fig5_redox_resilience.pdf")
 fig5_tiff <- file.path(figure_out_dir, "Fig5_redox_resilience.tiff")
 fig5_png  <- file.path(figure_out_dir, "Fig5_redox_resilience.png")
 
-grDevices::cairo_pdf(filename = fig5_pdf, width = 27, height = 30, onefile = TRUE)
+grDevices::cairo_pdf(filename = fig5_pdf, width = 25, height = 29, onefile = TRUE)
 print(fig5)
 invisible(grDevices::dev.off())
 
@@ -2241,7 +2242,7 @@ ggplot2::ggsave(fig5_tiff, fig5,
 
 ggplot2::ggsave(fig5_png, fig5,
   width = 16, height = 22, units = "in",
-  dpi = 300, bg = "white", limitsize = FALSE)
+  dpi = 1000, bg = "white", limitsize = FALSE)
 
 message("Saved:")
 message("  PDF:  ", normalizePath(fig5_pdf))
