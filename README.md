@@ -45,11 +45,11 @@ Open `Redox_resilience_figure_script.R`, point `data_dir` at your local copy of 
 
 ```
 .
-├── Redox_resilience_figure_script.R     full panel + figure assembly
+├── Redox_resilience.R     full panel + figure assembly
 ├── data/                                raw input files
 ├── figure/
-│   ├── processed_data/                  one CSV + RDS per panel
-│   └── figures/                         PDF 
+├── processed_data/                  one CSV + RDS per panel
+├── figures/                         PDF 
 └── README.md
 ```
 <br>
