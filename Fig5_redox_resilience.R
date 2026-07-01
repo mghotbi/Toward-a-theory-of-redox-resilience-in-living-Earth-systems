@@ -3,7 +3,6 @@
 # Ghotbi et al. 2026
 #
 # Complete self-contained script.
-# Edit data_dir (line 20) and p9_file (line 21) then run
 # top to bottom to produce Fig. 5 as PDF / TIFF / PNG.
 # ============================================================
 
@@ -64,7 +63,7 @@ num <- function(x) readr::parse_number(as.character(x))
 # 4. Theme and colours ----------------------------------------------------
 
 theme_redox <- function(base_size = 8) {
-  ggplot2::theme_minimal(base_size = base_size, base_family = "Helvetica") +
+  ggplot2::theme_minimal(base_size = base_size, base_family = "Arial") +
     ggplot2::theme(
       panel.grid.minor = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_line(
@@ -1012,14 +1011,9 @@ ros_liu <- tibble::tribble(
 # ── Li et al. 2025 data import ───────────────────────────────────────────
 # Source: Li et al. 2025, Nat. Commun.
 
-li_file <- find_file(c(  file.path(data_dir, "Li 2025 Ncom.xlsx"),
-  file.path(data_dir, "li 2025 rythmic.xlsx")))
+li_file <- find_file(c(  file.path(data_dir, "Li 2025 Ncom.xlsx"),  file.path(data_dir, "li 2025 rythmic.xlsx")))
 
-fig1_li <- readxl::read_xlsx(
-  li_file,
-  sheet = 1,
-  col_names = FALSE,
-  col_types = "text")
+fig1_li <- readxl::read_xlsx(  li_file,   sheet = 1,  col_names = FALSE,  col_types = "text")
 
 # Panel K -----------------------------------------------------------------
 
@@ -1863,17 +1857,17 @@ while (grDevices::dev.cur() > 1) grDevices::dev.off()
 
 # ── Typography and spacing constants ─────────────────────────────────────────
 
-BASE   <- 8.5          # base font size (pt)
-TITLE  <- 9.8          # panel title
-SUB    <- 7.2          # panel subtitle
-STRIP  <- 7.5          # facet strip text
-AXIS_T <- 8.0          # axis title
-AXIS_X <- 7.2          # axis text
-LEG    <- 6.8          # legend text
+BASE   <- 14.0         # base font size (pt)  — 18×26 in output
+TITLE  <- 15.5         # panel title
+SUB    <- 12.5         # panel subtitle
+STRIP  <- 13.0         # facet strip text
+AXIS_T <- 13.0         # axis title
+AXIS_X <- 12.5         # axis tick text
+LEG    <- 12.0         # legend text
 
 # ── Base panel theme — clean, generous whitespace ────────────────────────────
 
-panel_theme <- ggplot2::theme_minimal(base_size = BASE, base_family = "Helvetica") +
+panel_theme <- ggplot2::theme_minimal(base_size = BASE, base_family = "Arial") +
   ggplot2::theme(
     # Titles
     plot.title         = ggplot2::element_text(face = "bold", size = TITLE,
@@ -1903,7 +1897,8 @@ panel_theme <- ggplot2::theme_minimal(base_size = BASE, base_family = "Helvetica
                            colour = NA),
     legend.margin      = ggplot2::margin(2, 4, 2, 4),
     # Panel border
-    panel.border       = ggplot2::element_blank(),
+    panel.border       = ggplot2::element_rect(colour = "grey40",
+                           fill = NA, linewidth = 0.6),
     # Plot margin
     plot.margin        = ggplot2::margin(5, 6, 5, 6)
   )
@@ -1915,26 +1910,20 @@ property_header <- function(label, definition, fill) {
     ggplot2::annotate("rect",
       xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf,
       fill = fill, colour = NA) +
-    ggplot2::annotate("segment",
-      x = 0.04, xend = 0.96, y = 0.5, yend = 0.5,
-      colour = scales::alpha("grey40", 0.25), linewidth = 0.3) +
     ggplot2::annotate("text",
-      x = 0.5, y = 0.74, label = label,
-      fontface = "bold", size = 3.6, colour = "grey10",
-      family = "Helvetica") +
-    ggplot2::annotate("text",
-      x = 0.5, y = 0.27, label = definition,
-      size = 2.35, colour = "grey40", family = "Helvetica",
-      fontface = "italic") +
+      x = 0.5, y = 0.5, label = label,
+      fontface = "bold", size = 5.5, colour = "grey10",
+      family = "Arial") +
     ggplot2::coord_cartesian(xlim = c(0, 1), ylim = c(0, 1)) +
     ggplot2::theme_void()
 }
 
-property_block <- function(label, definition, fill, plots, ncol) {
+property_block <- function(label, definition, fill, plots, ncol,
+                           widths = rep(1, ncol)) {
   patchwork::wrap_elements(
     full = property_header(label, definition, fill) /
-      patchwork::wrap_plots(plots, ncol = ncol) +
-      patchwork::plot_layout(heights = c(0.09, 1))
+      patchwork::wrap_plots(plots, ncol = ncol, widths = widths) +
+      patchwork::plot_layout(heights = c(0.075, 1))
   )
 }
 
@@ -1944,13 +1933,13 @@ p_A <- p_capacity +
   panel_theme +
   ggplot2::theme(
     legend.position  = "none",
-    strip.background = ggplot2::element_rect(fill = "#FFF8EE", colour = NA),
+    strip.background = ggplot2::element_rect(fill = "#FAE5BF", colour = NA),
     strip.text       = ggplot2::element_text(face = "bold", size = STRIP,
                          colour = "#7B4F1E")
   ) +
   ggplot2::labs(
-    title    = "A  Capacity: soil buffering architecture",
-    subtitle = "Soil capacity covaries with carbon, mineral and structural proxies"
+    title    = "A  Soil carbon, minerals and structure covary with anaerobic functional capacity",
+    subtitle = "Lacroix et al. 2025; n = 6 proxies, GAM fits, REML smoothing"
   )
 
 # ── Panel B — CAPACITY: EEC rhizosphere ──────────────────────────────────────
@@ -1962,8 +1951,8 @@ p_B <- p_li_l +
     panel.grid.major.x = ggplot2::element_blank()
   ) +
   ggplot2::labs(
-    title    = "B  Capacity: rhizosphere electron buffering",
-    subtitle = "Electron exchange capacity intensifies toward iron-plaque"
+    title    = "B  Electron exchange capacity is highest at the iron-plaque interface",
+    subtitle = "Li et al. 2025; mean EEC ± reconstructed distribution across three compartments"
   )
 
 # ── Panel C — CAPACITY: Fe-OC Patzner ────────────────────────────────────────
@@ -1973,14 +1962,14 @@ p_C <- p_patzner_p +
   ggplot2::theme(
     legend.position  = "bottom",
     legend.direction = "horizontal",
-    strip.background = ggplot2::element_rect(fill = "#FFF8EE", colour = NA),
+    strip.background = ggplot2::element_rect(fill = "#FAE5BF", colour = NA),
     strip.text       = ggplot2::element_text(face = "bold", size = STRIP,
                          colour = "#7B4F1E"),
     panel.grid.major.y = ggplot2::element_line(colour = "grey91", linewidth = 0.3)
   ) +
   ggplot2::labs(
-    title    = "C  Capacity: Fe\u2013OC storage across thaw gradients",
-    subtitle = "Reactive Fe and Fe\u2013OC pools reorganize across permafrost profiles"
+    title    = "C  Reactive Fe and Fe\u2013OC pools reorganize along permafrost thaw gradient",
+    subtitle = "Patzner et al. 2020; reactive Fe and Fe-associated OC stocks by horizon and stage"
   )
 
 # ── Panel D — CONNECTIVITY: FLUXNET CH4 ──────────────────────────────────────
@@ -1989,8 +1978,8 @@ p_D <- p_connectivity +
   panel_theme +
   ggplot2::theme(legend.position = "none") +
   ggplot2::labs(
-    title    = expression("D  Connectivity: hydrological control of " * CH[4]),
-    subtitle = "FLUXNET daily observations fitted with nonlinear GAM"
+    title    = expression("D  Water-table depth predicts variation in wetland " * CH[4] * " flux"),
+    subtitle = "Delwiche et al. 2021 / FLUXNET-CH4; GAM R² = 0.46, P < 0.001"
   )
 
 # ── Panel E — CONNECTIVITY: microbial routing ─────────────────────────────────
@@ -2003,8 +1992,8 @@ p_E <- p_microbes +
     panel.grid.major.x = ggplot2::element_line(colour = "grey93", linewidth = 0.3)
   ) +
   ggplot2::labs(
-    title    = "E  Connectivity: functional microbial routing",
-    subtitle = "Evidence synthesis from oxygenated-soil methanogenesis"
+    title    = "E  Methanogenesis persists across oxic\u2013anoxic boundaries",
+    subtitle = "Angle et al. 2017; semi-quantitative evidence weights from oxygenated-soil incubations"
   )
 
 # ── Panel F — KINETICS: gas pulse asymmetry ──────────────────────────────────
@@ -2016,8 +2005,8 @@ p_F <- p_kinetics +
     panel.grid.major.x = ggplot2::element_blank()
   ) +
   ggplot2::labs(
-    title    = "F  Kinetics: greenhouse-gas pulse asymmetry",
-    subtitle = "Rewetting/thawing reveal unequal response magnitudes"
+    title    = expression("F  CO"[2]*", CH"[4]*" and N"[2]*"O pulses differ in magnitude after rewetting"),
+    subtitle = "Kim et al. 2012; log response ratios, Wilcoxon test vs zero, n = 43/8/80"
   )
 
 # ── Panel G — KINETICS: CO2 rewetting ────────────────────────────────────────
@@ -2027,13 +2016,13 @@ p_G <- p_co2_efflux +
   ggplot2::theme(
     legend.position  = "top",
     legend.direction = "horizontal",
-    strip.background = ggplot2::element_rect(fill = "#FFFBF0", colour = NA),
+    strip.background = ggplot2::element_rect(fill = "#F0D870", colour = NA),
     strip.text       = ggplot2::element_text(face = "bold", size = STRIP,
-                         colour = "#7B4000")
+                         colour = "#5C4400")
   ) +
   ggplot2::labs(
-    title    = expression("G  Kinetics: early " * CO[2] * " response to rewetting"),
-    subtitle = "Sterilization reveals rapid abiotic contribution to rewetting"
+    title    = expression("G  Abiotic and biotic pathways separate within hours of rewetting"),
+    subtitle = "Liu et al. 2025; paddy and sandy soils, 0.5–48 h post-rewetting"
   )
 
 # ── Panel H — MEMORY: N2 trajectories ────────────────────────────────────────
@@ -2049,8 +2038,8 @@ p_H <- p_sennett +
     legend.direction = "horizontal"
   ) +
   ggplot2::labs(
-    title    = expression("H  Memory: oxygen-history " * N[2] * " trajectories"),
-    subtitle = expression(N[2] * " production converges toward persistent trajectories")
+    title    = expression("H  Prior O"[2]*" exposure is associated with divergent N"[2]*" production trajectories"),
+    subtitle = "Sennett et al. 2024; sequential anoxic conditioning cycles, GAM trajectory fits"
   )
 
 # ── Panel I — MEMORY: denitrification modules ────────────────────────────────
@@ -2064,14 +2053,14 @@ p_I <- p_sennett_n +
   ggplot2::theme(
     legend.position  = "top",
     legend.direction = "horizontal",
-    strip.background = ggplot2::element_rect(fill = "#FAF2FF", colour = NA),
+    strip.background = ggplot2::element_rect(fill = "#C9A8E0", colour = NA),
     strip.text       = ggplot2::element_text(face = "bold", size = STRIP,
-                         colour = "#4A148C"),
+                         colour = "#3A0070"),
     panel.spacing    = ggplot2::unit(8, "pt")
   ) +
   ggplot2::labs(
-    title    = "I  Memory: persistent pathway restructuring",
-    subtitle = "Pathway-specific recovery from prior oxygen exposure"
+    title    = expression("I  Denitrification gene modules differ across O"[2]*" exposure histories"),
+    subtitle = "Sennett et al. 2024; scaled metatranscriptomic reads, three oxygen-history treatments"
   )
 
 # ── Panel J — RECOVERY TRAJECTORY: freeze-thaw ───────────────────────────────
@@ -2083,8 +2072,8 @@ p_J <- p_ftc +
     panel.grid.major.x = ggplot2::element_blank()
   ) +
   ggplot2::labs(
-    title    = "J  Recovery trajectory: freeze\u2013thaw hysteresis",
-    subtitle = expression("Directional " * Delta * E[H] * " transitions reveal path dependence")
+    title    = expression("J  Freeze\u2013thaw transitions show directional, path-dependent " * Delta*E[H]),
+    subtitle = "Liebmann et al. 2025; individual electrode ΔEh per transition, median crossbar"
   )
 
 # ── Panel K — RECOVERY TRAJECTORY: O2-Eh-pH ──────────────────────────────────
@@ -2100,8 +2089,8 @@ p_K <- p_li_k +
     legend.direction = "horizontal"
   ) +
   ggplot2::labs(
-    title    = expression("K  Recovery trajectory: coupled O"[2] * "\u2013Eh\u2013pH dynamics"),
-    subtitle = "Root oxygen release generates asynchronous redox trajectories"
+    title    = expression("K  Root O"[2]*" release is associated with asynchronous Eh and pH recovery"),
+    subtitle = "Li et al. 2025; scaled O₂, Eh and pH signals from rhythmic root-oxygen incubations"
   )
 
 # ── Panel L — RECOVERY TRAJECTORY: conceptual Fe-routing ─────────────────────
@@ -2118,19 +2107,19 @@ p_L <- ggplot2::ggplot() +
   ggplot2::annotate("label", x = 1.05, y =  0.60,
     label = "Reactive Fe\nstorage", fontface = "bold",
     size = 2.65, label.size = 0.18, fill = "#FFE4B0",
-    colour = "grey15", family = "Helvetica") +
+    colour = "grey15", family = "Arial") +
   ggplot2::annotate("label", x = 1.05, y = -0.60,
     label = "Fe-associated\norganic carbon", fontface = "bold",
     size = 2.65, label.size = 0.18, fill = "#FFE4B0",
-    colour = "grey15", family = "Helvetica") +
+    colour = "grey15", family = "Arial") +
   ggplot2::annotate("label", x = 2.90, y =  0,
     label = "Reduced Fe\nproducts", fontface = "bold",
     size = 2.65, label.size = 0.18, fill = "#FADADD",
-    colour = "grey15", family = "Helvetica") +
+    colour = "grey15", family = "Arial") +
   ggplot2::annotate("label", x = 4.65, y =  0,
     label = "Fe-reducing\ncommunities", fontface = "bold",
     size = 2.65, label.size = 0.18, fill = "#C8EDD1",
-    colour = "grey15", family = "Helvetica") +
+    colour = "grey15", family = "Arial") +
   # Arrows
   ggplot2::annotate("segment",
     x = 1.68, y =  0.57, xend = 2.38, yend =  0.13,
@@ -2147,62 +2136,54 @@ p_L <- ggplot2::ggplot() +
   # Edge labels
   ggplot2::annotate("text", x = 2.05, y =  0.44,
     label = "thaw-driven\nreduction", size = 2.1,
-    colour = "grey45", family = "Helvetica") +
+    colour = "grey45", family = "Arial") +
   ggplot2::annotate("text", x = 3.76, y =  0.24,
     label = "biotic\nrouting", size = 2.1,
-    colour = "grey45", family = "Helvetica") +
+    colour = "grey45", family = "Arial") +
   # Zone labels at top
   ggplot2::annotate("text", x = 1.05, y =  1.18,
     label = "Mineral storage", size = 2.3,
-    fontface = "bold", colour = "#8B5E3C", family = "Helvetica") +
+    fontface = "bold", colour = "#8B5E3C", family = "Arial") +
   ggplot2::annotate("text", x = 2.90, y =  0.68,
     label = "Reduced\nproduct", size = 2.1,
-    fontface = "bold", colour = "#9B2335", family = "Helvetica") +
+    fontface = "bold", colour = "#9B2335", family = "Arial") +
   ggplot2::annotate("text", x = 4.65, y =  0.68,
     label = "Biotic\nrouting", size = 2.1,
-    fontface = "bold", colour = "#2E7D32", family = "Helvetica") +
+    fontface = "bold", colour = "#2E7D32", family = "Arial") +
   ggplot2::coord_cartesian(xlim = c(0.22, 5.48), ylim = c(-1.28, 1.32), clip = "off") +
   ggplot2::labs(
-    title    = "L  Recovery trajectory: Fe-routing reconstruction",
-    subtitle = "Synthesis of thaw-driven Fe\u2013OC redistribution and Fe-reducer expansion"
+    title    = "L  Conceptual synthesis: thaw redistributes Fe from mineral storage toward biotic routing",
+    subtitle = "Derived from Patzner et al. 2020; Fen/Palsa fold changes in reactive Fe, Fe-OC and Fe reducers"
   ) +
-  ggplot2::theme_void(base_size = BASE, base_family = "Helvetica") +
+  ggplot2::theme_void(base_size = BASE, base_family = "Arial") +
   panel_theme +
   ggplot2::theme(
-    panel.border = ggplot2::element_blank(),
-    axis.line    = ggplot2::element_blank()
+    panel.border = ggplot2::element_blank(),   # conceptual panel — no frame
+    axis.line    = ggplot2::element_blank(),
+    axis.text    = ggplot2::element_blank(),
+    axis.ticks   = ggplot2::element_blank()
   )
 
 # ── Property blocks ───────────────────────────────────────────────────────────
 
 capacity_block <- property_block(
-  "CAPACITY",
-  "Accessible electron-buffering potential of mineral, organic and rhizosphere reservoirs",
-  "#FFF8EE",
+  "CAPACITY", "", "#F5D9A8",
   list(p_A, p_B, p_C), ncol = 3)
 
 connectivity_block <- property_block(
-  "CONNECTIVITY",
-  "Extent to which electron donors, acceptors and microorganisms remain physically and functionally linked",
-  "#EDF7F6",
-  list(p_D, p_E), ncol = 2)
+  "CONNECTIVITY", "", "#A8D8D4",
+  list(p_D, p_E), ncol = 2, widths = c(1.6, 1))
 
 kinetics_block <- property_block(
-  "KINETICS",
-  "Rates at which electron-transfer pathways respond relative to forcing duration",
-  "#FFFBF0",
-  list(p_F, p_G), ncol = 2)
+  "KINETICS", "", "#F5E6A3",
+  list(p_F, p_G), ncol = 2, widths = c(1, 1.6))
 
 memory_block <- property_block(
-  "MEMORY",
-  "Persistent hidden-state effects inherited from prior disturbance that modify future electron routing",
-  "#FAF2FF",
-  list(p_H, p_I), ncol = 2)
+  "MEMORY", "", "#CEB3E8",
+  list(p_H, p_I), ncol = 2, widths = c(1, 1.4))
 
 recovery_block <- property_block(
-  "RECOVERY TRAJECTORY",
-  "Realized pathway through hidden-state space following disturbance \u2014 the measurable expression of resilience",
-  "#EFF7F1",
+  "RECOVERY TRAJECTORY", "", "#A3D4AF",
   list(p_J, p_K, p_L), ncol = 3)
 
 # ── Final figure ──────────────────────────────────────────────────────────────
@@ -2216,7 +2197,7 @@ fig5 <- patchwork::wrap_plots(
   ncol = 1
 ) +
   patchwork::plot_annotation(
-    title    = "Empirical signatures of hydroclimatic redox resilience across living Earth systems",
+    title    = "Empirical evidence for six properties of hydroclimatic redox resilience",
     subtitle = paste(
       "Capacity, connectivity, kinetics and memory are hidden-state properties of electron-transfer architecture;",
       "recovery trajectory — encompassing hysteresis, lag, overshoot and reorganization — is their observable expression."
@@ -2230,13 +2211,13 @@ fig5 <- patchwork::wrap_plots(
     ),
     theme    = ggplot2::theme(
       plot.title    = ggplot2::element_text(face = "bold", size = 14, hjust = 0,
-                        colour = "grey8", family = "Helvetica",
+                        colour = "grey8", family = "Arial",
                         margin = ggplot2::margin(0, 0, 4, 0)),
       plot.subtitle = ggplot2::element_text(size = 9.2, colour = "grey35",
-                        hjust = 0, lineheight = 1.2, family = "Helvetica",
+                        hjust = 0, lineheight = 1.2, family = "Arial",
                         margin = ggplot2::margin(0, 0, 6, 0)),
       plot.caption  = ggplot2::element_text(size = 6.4, colour = "grey50",
-                        hjust = 0, lineheight = 1.3, family = "Helvetica"),
+                        hjust = 0, lineheight = 1.3, family = "Arial"),
       plot.background = ggplot2::element_rect(fill = "white", colour = NA),
       plot.margin   = ggplot2::margin(10, 10, 8, 10)
     )
@@ -2250,7 +2231,7 @@ fig5_pdf  <- file.path(figure_out_dir, "Fig5_redox_resilience.pdf")
 fig5_tiff <- file.path(figure_out_dir, "Fig5_redox_resilience.tiff")
 fig5_png  <- file.path(figure_out_dir, "Fig5_redox_resilience.png")
 
-grDevices::cairo_pdf(filename = fig5_pdf, width = 16, height = 22, onefile = TRUE)
+grDevices::cairo_pdf(filename = fig5_pdf, width = 27, height = 30, onefile = TRUE)
 print(fig5)
 invisible(grDevices::dev.off())
 
