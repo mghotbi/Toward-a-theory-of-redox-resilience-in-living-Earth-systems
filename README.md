@@ -49,7 +49,7 @@ Open `Redox_resilience_figure_script.R`, point `data_dir` at your local copy of 
 ├── data/                                raw input files
 ├── github_ready_figure_exports/
 │   ├── processed_data/                  one CSV + RDS per panel
-│   └── figures/                         PDF · TIFF (1200 dpi) · PNG
+│   └── figures/                         PDF 
 └── README.md
 ```
 <br>
