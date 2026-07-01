@@ -146,7 +146,8 @@ A matched ` .csv` + `.rds` pair to `figure_exports/processed_data/`, e.g. `lacro
 
 | Format | Use |
 |:---|:---|
-| `.png` | <br><br><img width="700" alt="Figure 5 – Redox resilience synthesis" src="https://github.com/user-attachments/assets/97b19486-4033-4510-8a11-ad265b54e19b" /> |
+| `.png` |  <br><br><img width="250" alt="Figure 5 – Redox resilience synthesis" src="https://github.com/user-attachments/assets/97b19486-4033-4510-8a11-ad265b54e19b" /> |
+
 <br>
 
 ## Citation
