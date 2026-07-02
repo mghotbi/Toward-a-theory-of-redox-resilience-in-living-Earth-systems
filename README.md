@@ -58,15 +58,15 @@ Open `Redox_resilience_figure_script.R`, point `data_dir` at your local copy of 
 
 Each panel in Figure 5 provides empirical evidence for one of six properties of redox resilience:
 
-| | Property | Panels |
-|:---:|:---|:---|
-| 🟧 | **Capacity** | A · B · C |
-| 🟦 | **Connectivity** | D · E |
-| 🟨 | **Kinetics** | F · G |
-| 🟪 | **Memory** | H · I |
-| 🟩 | **Recovery trajectory** | J · K · L |
 
-<br>
+| | Property | Panels |
+|:--:|:---|:---:|
+| <span style="font-size:22px;">🟧</span> | **Capacity** | A · B · C |
+| <span style="font-size:22px;">🟦</span> | **Connectivity** | D · E |
+| <span style="font-size:22px;">🟨</span> | **Kinetics** | F · G |
+| <span style="font-size:22px;">🟪</span> | **Memory** | H · I |
+| <span style="font-size:22px;">🟩</span> | **Recovery trajectory** | J · K · L |
+
 
 ## Datasets
 
