@@ -109,7 +109,7 @@ Liebmann, P. et al. Perennial redox potential dynamics in Alaskan degraded and n
 </details>
 
 <details>
-<summary><b>📂 Table 2 — Raw files on disk</b></summary>
+<summary><b> Table 2 — Raw files on disk</b></summary>
 
 The files below are the original datasets used for each figure panel.
 
