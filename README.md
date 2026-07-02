@@ -106,12 +106,15 @@ Liebmann, P. et al. Perennial redox potential dynamics in Alaskan degraded and n
 
 </details>
 
+</details>
+
 <details>
-<summary><b>Table 2 — Raw files on disk</b></summary>
-<br>
+<summary><b>📂 Table 2 — Raw files on disk</b></summary>
+
+The files below are the original datasets used for each figure panel.
 
 | File | Panel | Size | Notes |
-|:---|:---:|:---:|:---|
+|:-----|:----:|:----:|:------|
 | `fig4_panel_a_lacroix_capacity_axis.csv` | A | <1 MB | Anoxic-microsite, SOC, anaerobic-gene proxies |
 | `lacroix_2025_rhizosphere_kinetics.csv` | G | <1 MB | Root exudation, O₂ depletion, anoxic-microsite formation |
 | `global_rtsg_flux_v1.csv` | F | 1–5 MB | Global rewetting/thawing CO₂, CH₄, N₂O flux synthesis |
@@ -124,13 +127,14 @@ Liebmann, P. et al. Perennial redox potential dynamics in Alaskan degraded and n
 | `Main text_1) Porewater analysis.xlsx` | C | <1 MB | Porewater Fe²⁺ across thaw stages (Palsa → Bog → Fen) |
 | `SI_6) Stock of reactive Fe and associated OC.xlsx` | L | <1 MB | Reactive Fe / Fe-OC stocks by soil horizon |
 
-All raw files are third-party research data, included here only as the specific extracts used for figure panels. Cite the original papers above — not this repository — when reusing the underlying measurements.
+> **Note**  
+> All raw files are third-party research data, included here only as the specific extracts used for figure panels. Cite the original papers above—not this repository—when reusing the underlying measurements.
 
 </details>
 
 <details>
-<summary><b>Table 3 — Processed outputs</b></summary>
-<br>
+<summary><b> Table 3 — Processed outputs</b></summary>
+
 
 A matched ` .csv` + `.rds` pair to `figure_exports/processed_data/`, e.g. `lacroix_2025_panel_a_capacity_axis.csv`, `li_2025_panel_k_recovery_trajectory.csv`.
 
