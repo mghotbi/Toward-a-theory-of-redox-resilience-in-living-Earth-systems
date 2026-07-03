@@ -157,7 +157,7 @@ If you use these processed datasets, please cite the manuscript above and the or
 
 ## License & reuse
 
-Code in this repository is shared for reproducibility. Raw datasets remain the property of their original authors/publishers and are subject to their respective licenses — see Table 1 for citations and DOIs.
+Code in this repository is shared for reproducibility. Raw datasets remain the property of their original authors/publishers and are subject to their respective licenses — see Table 1 for citations.
 
 <br>
 
