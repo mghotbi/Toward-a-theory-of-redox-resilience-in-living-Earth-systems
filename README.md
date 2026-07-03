@@ -38,7 +38,7 @@ git clone https://github.com/mghotbi/Toward-a-theory-of-redox-resilience-in-livi
 cd Toward-a-theory-of-redox-resilience-in-living-Earth-systems
 ```
 
-Open `Gig5_redox_resilience.R`, point `data_dir` at your local copy of `data/`, and run it top to bottom. It regenerates every processed dataset and figures (`fig_MAIN_10panels_...`).
+Open `Fig5_redox_resilience.R`, point `data_dir` at your local copy of `data/`, and run it top to bottom. It regenerates every processed dataset and figures (`fig_MAIN_10panels_...`).
 
 <br>
 
