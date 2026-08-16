@@ -56,7 +56,7 @@ Open `Fig5_redox_resilience.R`, point `data_dir` at your local copy of `data/`, 
  
 ## The six properties
 
-Each panel in Figure 5 provides empirical evidence for one of six properties of redox resilience:
+Each panel in Figure 5 provides empirical evidence for one of five properties of redox resilience:
 
 
 | | Property | Panels |
